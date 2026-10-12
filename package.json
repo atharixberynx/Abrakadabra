@@ -1,0 +1,16 @@
+{
+  "name": "abrakadabra-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tienda en línea de Abrakadabra Fashion Shop (monorepo: client + server)",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n api,web -c magenta,yellow \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "test": "npm test --prefix server",
+    "lint": "npm run lint --prefix server && npm run lint --prefix client",
+    "build": "npm run build --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
