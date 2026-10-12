@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+
+/*
+ * Tokens de marca (colores tomados del logo oficial).
+ * Tailwind v4 genera a la vez las clases (bg-brand, text-ink, border-gold…)
+ * y las variables CSS (var(--color-brand)…) a partir de este bloque.
+ * Para cambiar la paleta, edita solo aquí y corre `npm run check:contrast`.
+ *
+ * Regla de contraste: para texto sobre blanco no uses menos de text-ink/70
+ * (text-ink/60 ya no cumple WCAG AA).
+ */
+@theme {
+  --color-brand: #59378d; /* principal: header, botones, enlaces, precios */
+  --color-brand-dark: #3f2566; /* hover de botones, texto sobre fondos claros */
+  --color-brand-soft: #795393; /* secundarios, bordes activos */
+  --color-lavender: #f3eef8; /* fondos alternos, tarjetas, chips */
+  --color-gold: #edc246; /* SOLO acento. Nunca texto dorado sobre blanco */
+  --color-ink: #2a1a40; /* texto principal */
+  --color-white: #ffffff;
+
+  --font-display: 'Josefin Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+
+  /* Espaciado amplio de letras, como "FASHION SHOP" del logo */
+  --tracking-brand: 0.18em;
+
+  --shadow-soft: 0 4px 16px -4px rgb(89 55 141 / 0.15);
+}
+
+@layer base {
+  html {
+    color: var(--color-ink);
+    background-color: var(--color-white);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+
+  /* Foco visible para navegación con teclado */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Nombre de producto: mayúsculas con espaciado amplio */
+@utility product-name {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-brand);
+}
