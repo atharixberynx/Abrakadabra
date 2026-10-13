@@ -7,7 +7,7 @@ export const ADMIN_NAV = [
   { to: '/admin/inicio', label: 'Inicio', icon: Images }, // banners del carrusel de la tienda
   { to: '/admin/productos', label: 'Productos', icon: Shirt },
   { to: '/admin/categorias', label: 'Categorías', icon: Tags },
-  { to: '/admin/pedidos', label: 'Pedidos', icon: ClipboardList, soon: true },
-  { to: '/admin/clientas', label: 'Clientas', icon: Users, soon: true },
+  { to: '/admin/pedidos', label: 'Pedidos', icon: ClipboardList },
+  { to: '/admin/clientas', label: 'Clientas', icon: Users },
   { to: '/admin/ajustes', label: 'Ajustes', icon: Settings, soon: true },
 ];

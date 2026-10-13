@@ -12,6 +12,7 @@ const VARIANTS = {
   ghost: 'text-brand hover:bg-lavender',
   inverse: 'bg-white text-brand hover:bg-lavender',
   danger: 'bg-danger text-white hover:brightness-90',
+  dangerOutline: 'border border-danger text-danger bg-white hover:bg-danger-soft',
 };
 
 const SIZES = {

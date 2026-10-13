@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 5 de 8 (carrito, checkout y pago simulado). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 6 de 8 (gestión de pedidos en el panel). Este README se completa en cada fase.
 
 ---
 
@@ -165,9 +165,16 @@ Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin"
 
 | Sección     | Qué se puede hacer                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------- |
+| Resumen     | Pedidos de hoy, pendientes de retiro, ventas del mes (vs. el mismo tramo del mes pasado), poco stock      |
+| Pedidos     | Filtrar por estado, fechas o búsqueda; ver detalle; marcar listo / entregado o cancelar (devuelve stock) |
+| Clientas    | Lista de solo lectura con sus pedidos y total comprado                                                   |
 | Productos   | Buscar y filtrar (categoría, visibles/ocultos, poco stock, agotados), mostrar u ocultar, editar y eliminar |
 | Inicio      | Banners del carrusel de la página de inicio: agregar (computadora y celular), ordenar, ocultar o quitar  |
 | Categorías  | Crear, renombrar, ordenar (flechas o arrastrando), mostrar u ocultar e imagen del mosaico de inicio      |
+
+**Estados de un pedido:** `pagado` (por preparar) → `listo para retiro` → `entregado`, o `cancelado`. Entregado y cancelado son finales. Al cancelar, las prendas vuelven al inventario automáticamente. Desde el detalle se puede avisar a la clienta por WhatsApp que su pedido está listo.
+
+**La cuenta admin no compra:** puede recorrer la tienda tal como la ven las clientas (con un botón "Editar este producto" en cada prenda), pero el pago está reservado a cuentas de clienta. Para probar compras usa una cuenta de clienta.
 
 **Crear o editar un producto**
 

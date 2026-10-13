@@ -9,11 +9,14 @@ import { AdminLayout } from './AdminLayout.jsx';
 import { ADMIN_NAV } from './adminNav.js';
 import BannersPage from './pages/BannersPage.jsx';
 import CategoriesPage from './pages/CategoriesPage.jsx';
+import { CustomerDetailPage, CustomersPage } from './pages/CustomersPage.jsx';
+import OrderDetailPage from './pages/OrderDetailPage.jsx';
+import OrdersPage from './pages/OrdersPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ProductFormPage from './pages/ProductFormPage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 
-const PHASE_BY_SECTION = { pedidos: 6, clientas: 6, ajustes: 7 };
+const PHASE_BY_SECTION = { ajustes: 7 };
 
 function ComingSoon({ section }) {
   const item = ADMIN_NAV.find((n) => n.to === `/admin/${section}`);
@@ -36,6 +39,10 @@ export default function AdminApp() {
         <Route path="productos" element={<ProductsPage />} />
         <Route path="productos/:id" element={<ProductFormPage />} />
         <Route path="categorias" element={<CategoriesPage />} />
+        <Route path="pedidos" element={<OrdersPage />} />
+        <Route path="pedidos/:id" element={<OrderDetailPage />} />
+        <Route path="clientas" element={<CustomersPage />} />
+        <Route path="clientas/:id" element={<CustomerDetailPage />} />
         {Object.keys(PHASE_BY_SECTION).map((section) => (
           <Route key={section} path={section} element={<ComingSoon section={section} />} />
         ))}
