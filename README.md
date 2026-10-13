@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 3 de 8 (catálogo). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 4 de 8 (panel admin de productos). Este README se completa en cada fase.
 
 ---
 
@@ -122,6 +122,39 @@ Credenciales de **demostración** (solo de ejemplo, cámbialas antes de publicar
 | `admin@abrakadabra.local` | `CambiaEsta123` |
 
 Al iniciar sesión, el equipo de la tienda entra al panel en `/admin`.
+
+## Panel administrativo
+
+Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin" del header).
+
+| Sección     | Qué se puede hacer                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| Productos   | Buscar y filtrar (categoría, visibles/ocultos, poco stock, agotados), mostrar u ocultar, editar y eliminar |
+| Categorías  | Crear, renombrar, ordenar (flechas o arrastrando), mostrar u ocultar e imagen del mosaico de inicio      |
+
+**Crear o editar un producto**
+
+1. **Información**: nombre, descripción, categoría, precio y, si está en oferta, el precio anterior (se muestra tachado).
+2. **Colores y tallas**: toca un color de la paleta rápida (o crea uno personalizado) y elige las tallas. Solo se agregan los colores en que existe esa prenda.
+3. **Existencias**: una tabla color × talla. La casilla indica si esa combinación **se vende**; el número, cuántas unidades hay. Las casillas de cada fila y columna activan o quitan todo un color o toda una talla (p. ej. "el rojo solo viene en S y M").
+4. **Fotos** (hasta 8): arrástralas o elígelas, ordénalas (la primera es la principal) y **asigna cada foto a su color**: en la tienda, al elegir ese color se muestran sus fotos.
+5. **Guardar producto**. Si intentas salir con cambios sin guardar, el panel te avisa.
+
+## Configurar Cloudinary (fotos)
+
+Las fotos se guardan en Cloudinary, en su **plan gratuito** (no pide tarjeta).
+
+1. Crea una cuenta en <https://cloudinary.com/users/register_free>.
+2. En el **Dashboard** (o *Settings › API Keys*) copia **Cloud name**, **API Key** y **API Secret**.
+3. Pégalos en `server/.env`:
+   ```
+   CLOUDINARY_CLOUD_NAME=tu-cloud-name
+   CLOUDINARY_API_KEY=123456789012345
+   CLOUDINARY_API_SECRET=el-secreto
+   ```
+4. Reinicia `npm run dev`. El aviso amarillo del panel desaparece y ya puedes subir fotos.
+
+Las fotos se suben desde el backend (el navegador nunca ve las credenciales), se guardan como máximo a 2000 px y la tienda las pide optimizadas (`f_auto,q_auto` y el ancho justo para cada pantalla). Solo se aceptan JPG, PNG o WEBP de hasta 5 MB, y se revisa el tipo real del archivo, no solo la extensión.
 
 ## Variables de entorno
 
