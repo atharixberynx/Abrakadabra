@@ -18,7 +18,7 @@ import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import AccountPage from './pages/account/AccountPage.jsx';
 
-const AdminHomePage = lazy(() => import('./admin/AdminHomePage.jsx'));
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 // Guía de marca: solo existe en desarrollo (no se incluye en la versión publicada)
 const BrandGuidePage = import.meta.env.DEV ? lazy(() => import('./pages/dev/BrandGuidePage.jsx')) : null;
 
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute role="admin">
         <Suspense fallback={<StoreLoader message="Cargando el panel…" className="min-h-dvh" />}>
-          <AdminHomePage />
+          <AdminApp />
         </Suspense>
       </ProtectedRoute>
     ),
