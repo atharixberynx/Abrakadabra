@@ -41,6 +41,25 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Oculta la barra de desplazamiento en carruseles horizontales (sigue funcionando el gesto) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Nombre de producto: mayúsculas con espaciado amplio */
 @utility product-name {
   font-family: var(--font-display);
