@@ -9,6 +9,7 @@ mongoose.set('strictQuery', true);
 // Consecuencias al escribir consultas:
 //  - Los operadores que pone el código a propósito deben marcarse como confiables:
 //      Product.find({ price: mongoose.trusted({ $gte: 5, $lte: 20 }) })
+//    (Ojo: `.setOptions({ sanitizeFilter: false })` NO lo desactiva; usa siempre trusted).
 //  - $and / $or / $nor sí se permiten en el primer nivel.
 //  - $text, $where y $expr están prohibidos (la búsqueda usa regex escapada).
 mongoose.set('sanitizeFilter', true);
