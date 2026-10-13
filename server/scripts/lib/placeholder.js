@@ -1,7 +1,8 @@
 /**
  * Imágenes de marcador de posición (SVG) para los datos de ejemplo.
- * Fondo lavanda con la silueta de la prenda pintada en su color, el nombre del producto
- * y la leyenda "Foto de ejemplo". La marca debe reemplazarlas por fotos reales.
+ * Fondo lavanda con la silueta de la prenda pintada en su color y la leyenda
+ * "Foto de ejemplo" (el nombre ya aparece en la tienda, debajo de la imagen).
+ * La marca debe reemplazarlas por fotos reales.
  * No se usan fotos de modelos generadas con IA.
  */
 
@@ -54,13 +55,12 @@ export function shapeForCategory(categorySlug) {
 
 /**
  * @param {object} options
- * @param {string} options.title     Texto principal (nombre del producto o categoría)
- * @param {string} [options.subtitle] Texto secundario (nombre del color)
+ * @param {string} [options.label]   Leyenda inferior (p. ej. el nombre del color)
  * @param {string} options.shape     Clave de SHAPES
  * @param {string} options.fill      Color de la prenda (hex)
  * @param {1|2}    [options.view]    1 = principal, 2 = segunda vista (fondo alterno, prenda girada)
  */
-export function placeholderSvg({ title, subtitle = '', shape, fill, view = 1 }) {
+export function placeholderSvg({ label = '', shape, fill, view = 1 }) {
   const isAccessory = shape === 'accessory';
   const garment = isAccessory
     ? `<path d="${SHAPES.accessory}" fill="none" stroke="${fill}" stroke-width="22" stroke-linecap="round"/>`
@@ -72,8 +72,7 @@ export function placeholderSvg({ title, subtitle = '', shape, fill, view = 1 }) 
   ${STAR(70, 70, 1.6)}${STAR(690, 860, 1.2)}
   ${isAccessory ? '' : HANGER}
   <g ${transform}>${garment}</g>
-  <text x="400" y="945" text-anchor="middle" font-family="Josefin Sans, Montserrat, sans-serif" font-size="34" letter-spacing="5" fill="${BRAND}">${escapeXml(title.toUpperCase())}</text>
-  ${subtitle ? `<text x="400" y="985" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="24" fill="${BRAND}" opacity="0.8">${escapeXml(subtitle)} · Foto de ejemplo</text>` : ''}
+  ${label ? `<text x="400" y="965" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="26" fill="${BRAND}" opacity="0.85">${escapeXml(label)} · Foto de ejemplo</text>` : ''}
 </svg>
 `;
 }

@@ -3,6 +3,5 @@
   <path transform="translate(70 70) scale(1.6)" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z" fill="#EDC246"/><path transform="translate(690 860) scale(1.2)" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z" fill="#EDC246"/>
   <path d="M400 160 a28 28 0 1 1 28 28 c-14 0 -28 8 -28 24 v14 l-150 70 h300 l-150 -70" fill="none" stroke="#59378D" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
   <g ><path d="M300 300 H500 L520 340 L590 900 H440 L400 470 L360 900 H210 L280 340 Z" fill="#5B7DB1" stroke="#59378D" stroke-opacity="0.25" stroke-width="4" stroke-linejoin="round"/></g>
-  <text x="400" y="945" text-anchor="middle" font-family="Josefin Sans, Montserrat, sans-serif" font-size="34" letter-spacing="5" fill="#59378D">PALAZO ESTAMPADO FLORAL</text>
-  <text x="400" y="985" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="24" fill="#59378D" opacity="0.8">Floral azul · Foto de ejemplo</text>
+  <text x="400" y="965" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="26" fill="#59378D" opacity="0.85">Floral azul · Foto de ejemplo</text>
 </svg>

@@ -58,7 +58,7 @@ async function run() {
   for (const [index, data] of categories.entries()) {
     const url = await writePlaceholder(
       `categorias/${data.slug}.svg`,
-      placeholderSvg({ title: data.name, shape: shapeForCategory(data.slug), fill: '#795393' }),
+      placeholderSvg({ shape: shapeForCategory(data.slug), fill: '#795393' }),
       canWriteImages,
     );
     const category = await Category.create({ ...data, order: index, image: { url } });
@@ -87,7 +87,7 @@ async function run() {
       for (const view of [1, 2]) {
         const url = await writePlaceholder(
           `productos/${slug}-${color.key}-${view}.svg`,
-          placeholderSvg({ title: data.name, subtitle: color.name, shape, fill: color.hex, view }),
+          placeholderSvg({ label: color.name, shape, fill: color.hex, view }),
           canWriteImages,
         );
         images.push({ url, colorKey: color.key, order: images.length });
