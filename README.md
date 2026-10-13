@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 2 de 8 (autenticación). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 3 de 8 (catálogo). Este README se completa en cada fase.
 
 ---
 
@@ -84,8 +84,23 @@ En desarrollo, Vite reenvía `/api` al backend (`localhost:4000`), así el naveg
 | raíz      | `npm test`               | Pruebas del backend                                             |
 | raíz      | `npm run lint`           | Revisa el código de server y client                             |
 | `server/` | `npm run seed:admin`     | Crea la primera cuenta de administración (ver abajo)            |
+| `server/` | `npm run seed:catalog`   | Carga el catálogo de ejemplo (⚠️ borra categorías y productos)  |
 | `client/` | `npm run brand:assets`   | Regenera logos optimizados, favicon e imagen Open Graph         |
 | `client/` | `npm run check:contrast` | Verifica contraste WCAG AA de la paleta                         |
+
+## Datos de ejemplo
+
+> ⚠️ **Todos los productos, precios, existencias e imágenes del seed son DE EJEMPLO.** Sirven para ver la tienda funcionando; la marca debe reemplazarlos por su catálogo real desde el panel administrativo.
+
+```bash
+cd server
+npm run seed:catalog
+```
+
+- Crea 8 categorías y 15 productos coherentes con la marca: precios de $5 a $25.50, tallas S a XL o talla única, de 2 a 4 colores por prenda.
+- Incluye un producto agotado, uno con poco stock, combinaciones color + talla que no se ofrecen y ofertas con precio anterior.
+- Las imágenes son siluetas lavanda (sin fotos de modelos generadas con IA), una por color, para que se vea cómo cambia la foto al elegir un color. Se guardan en `client/public/placeholders/`.
+- Solo borra categorías y productos (no toca cuentas ni pedidos). En producción pide confirmar con `npm run seed:catalog -- --yes`.
 
 ## Cuentas y administración
 
@@ -148,6 +163,8 @@ Todo está en **un solo archivo: [`client/src/theme/brand.css`](client/src/theme
 3. Si cambió el logo, reemplaza los archivos en `assets-marca/` (mismos nombres) y corre `npm run brand:assets`.
 
 Los componentes nunca usan colores sueltos, solo los nombres de los tokens (`bg-brand`, `text-ink`…). El color de la barra del navegador móvil, el favicon y el script de contraste también leen `brand.css`.
+
+En desarrollo, la página **<http://localhost:5173/guia-de-marca>** muestra en vivo la paleta, las tipografías, los botones y las insignias, para revisar cómo queda un cambio de manual de marca. Esta página no se incluye en la versión publicada.
 
 ## Seguridad (resumen)
 
