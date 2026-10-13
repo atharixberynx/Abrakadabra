@@ -4,6 +4,7 @@
  *
  *   const { data, loading, error, slow, reload } = useFetch('/products?nuevos=1');
  *   Pasa `null` como ruta para no cargar nada todavía.
+ *   En el panel admin usa { cache: false } para ver siempre los datos más recientes.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../lib/api.js';
@@ -16,8 +17,8 @@ function readCache(path) {
   return entry && Date.now() - entry.time < CACHE_TTL_MS ? entry.data : undefined;
 }
 
-export function useFetch(path, { slowAfterMs = 4000 } = {}) {
-  const cached = path ? readCache(path) : undefined;
+export function useFetch(path, { slowAfterMs = 4000, cache: useCache = true } = {}) {
+  const cached = path && useCache ? readCache(path) : undefined;
   const [state, setState] = useState({
     path,
     data: cached,
@@ -34,14 +35,14 @@ export function useFetch(path, { slowAfterMs = 4000 } = {}) {
 
   useEffect(() => {
     if (!path) return undefined;
-    if (attempt === 0 && readCache(path) !== undefined) return undefined;
+    if (useCache && attempt === 0 && readCache(path) !== undefined) return undefined;
 
     const controller = new AbortController();
     const slowTimer = setTimeout(() => setSlow(true), slowAfterMs);
 
     apiFetch(path, { signal: controller.signal })
       .then((data) => {
-        cache.set(path, { data, time: Date.now() });
+        if (useCache) cache.set(path, { data, time: Date.now() });
         setState({ path, data, error: null, loading: false });
       })
       .catch((error) => {
@@ -56,13 +57,17 @@ export function useFetch(path, { slowAfterMs = 4000 } = {}) {
       controller.abort();
       clearTimeout(slowTimer);
     };
-  }, [path, attempt, slowAfterMs]);
+  }, [path, attempt, slowAfterMs, useCache]);
 
-  const reload = useCallback(() => {
-    cache.delete(path);
-    setState((s) => ({ ...s, loading: true, error: null }));
-    setAttempt((n) => n + 1);
-  }, [path]);
+  /** reload() muestra el estado de carga; reload({ silent: true }) actualiza sin parpadeo */
+  const reload = useCallback(
+    (options) => {
+      cache.delete(path);
+      if (!options?.silent) setState((s) => ({ ...s, loading: true, error: null }));
+      setAttempt((n) => n + 1);
+    },
+    [path],
+  );
 
   return { data: state.data, error: state.error, loading: state.loading, slow, reload };
 }
