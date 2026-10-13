@@ -9,7 +9,7 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "dev": "node --watch src/server.js",
+    "dev": "node --watch-path=./src --watch-path=./.env src/server.js",
     "start": "node src/server.js",
     "test": "vitest run",
     "test:watch": "vitest",

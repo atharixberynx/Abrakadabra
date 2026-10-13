@@ -33,6 +33,22 @@ function assertConfigured() {
   }
 }
 
+/** Traduce los errores de Cloudinary a mensajes que la administradora pueda resolver */
+function cloudinaryError(error) {
+  const code = error.http_code;
+  if (code === 401) {
+    return new HttpError(502, 'Cloudinary rechazó las credenciales. Revisa CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET en server/.env.');
+  }
+  if (code === 403) {
+    return new HttpError(
+      502,
+      'Cloudinary no permite subir archivos con esta API Key (le faltan permisos). Usa la API Key principal de la cuenta o dale permisos de subida (ver README).',
+    );
+  }
+  if (code === 420) return new HttpError(502, 'Se alcanzó el límite del plan gratuito de Cloudinary. Intenta más tarde.');
+  return new HttpError(502, 'No se pudo subir la imagen. Intenta de nuevo.');
+}
+
 /** Sube una imagen (Buffer) y devuelve { url, publicId } */
 export function uploadImage(buffer, folder = 'productos') {
   assertConfigured();
@@ -45,8 +61,8 @@ export function uploadImage(buffer, folder = 'productos') {
       },
       (error, result) => {
         if (error) {
-          logger.error({ err: { message: error.message } }, 'Error al subir imagen a Cloudinary');
-          return reject(new HttpError(502, 'No se pudo subir la imagen. Intenta de nuevo.'));
+          logger.error({ err: { message: error.message, http: error.http_code } }, 'Error al subir imagen a Cloudinary');
+          return reject(cloudinaryError(error));
         }
         resolve({ url: result.secure_url, publicId: result.public_id });
       },
