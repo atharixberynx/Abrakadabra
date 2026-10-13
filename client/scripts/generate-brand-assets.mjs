@@ -15,11 +15,13 @@ import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { hexToRgba, readBrandColors } from './brand-tokens.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.resolve(root, '../../assets-marca');
 const OUT = path.resolve(root, '../public/brand');
-const BRAND_PURPLE = { r: 0x59, g: 0x37, b: 0x8d, alpha: 1 };
+// Fondo de íconos e imagen para redes: el color principal de src/theme/brand.css
+const BRAND_PURPLE = hexToRgba(readBrandColors().brand);
 
 await mkdir(OUT, { recursive: true });
 

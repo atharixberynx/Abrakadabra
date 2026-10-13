@@ -10,14 +10,18 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { StarDivider, StarIcon } from '../components/ui/StarIcon.jsx';
 import { StoreLoader } from '../components/ui/StoreLoader.jsx';
 
+// Los valores hex se leen del CSS (src/theme/brand.css), así esta guía nunca se desactualiza
 const PALETTE = [
-  { token: 'brand', hex: '#59378D', className: 'bg-brand', use: 'Principal' },
-  { token: 'brand-dark', hex: '#3F2566', className: 'bg-brand-dark', use: 'Hover y texto' },
-  { token: 'brand-soft', hex: '#795393', className: 'bg-brand-soft', use: 'Secundario' },
-  { token: 'lavender', hex: '#F3EEF8', className: 'bg-lavender', use: 'Fondos alternos' },
-  { token: 'gold', hex: '#EDC246', className: 'bg-gold', use: 'Solo acento' },
-  { token: 'ink', hex: '#2A1A40', className: 'bg-ink', use: 'Texto principal' },
+  { token: 'brand', className: 'bg-brand', use: 'Principal' },
+  { token: 'brand-dark', className: 'bg-brand-dark', use: 'Hover y texto' },
+  { token: 'brand-soft', className: 'bg-brand-soft', use: 'Secundario' },
+  { token: 'lavender', className: 'bg-lavender', use: 'Fondos alternos' },
+  { token: 'gold', className: 'bg-gold', use: 'Solo acento' },
+  { token: 'ink', className: 'bg-ink', use: 'Texto principal' },
 ];
+
+const cssVar = (name) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim().toUpperCase();
 
 function ApiStatus() {
   const { status, data, retry } = useApiHealth();
@@ -84,7 +88,7 @@ export default function HomePage() {
                 />
                 <div className="p-3 text-sm">
                   <p className="font-semibold">{color.token}</p>
-                  <p className="text-ink/70">{color.hex}</p>
+                  <p className="text-ink/70">{cssVar(`--color-${color.token}`)}</p>
                   <p className="text-xs text-ink/70">{color.use}</p>
                 </div>
               </div>

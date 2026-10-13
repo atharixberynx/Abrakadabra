@@ -109,9 +109,18 @@ Los valores sensibles van en archivos `.env`, que **nunca** se suben al reposito
 | `gold`       | `#EDC246` | Solo acento (insignia "Nuevo", estrella). Nunca texto dorado sobre blanco |
 | `ink`        | `#2A1A40` | Texto principal                                             |
 
-- Los tokens se definen una sola vez en [`client/src/index.css`](client/src/index.css) (bloque `@theme`) y generan clases de Tailwind (`bg-brand`, `text-ink`…) y variables CSS (`var(--color-brand)`).
 - Tipografías: **Josefin Sans** (títulos) y **Montserrat** (texto).
 - Logos originales en `assets-marca/`; las versiones web se generan con `npm run brand:assets`.
+
+### Cambiar la identidad visual (nuevo manual de marca)
+
+Todo está en **un solo archivo: [`client/src/theme/brand.css`](client/src/theme/brand.css)**. Ahí están los colores, las tipografías (incluida la URL de Google Fonts), el espaciado de letras, los redondeos y las sombras, con instrucciones comentadas.
+
+1. Cambia los **valores** (no los nombres) de los tokens en `brand.css`.
+2. Corre `npm run check:contrast` dentro de `client/` para confirmar que los textos siguen siendo legibles (WCAG AA).
+3. Si cambió el logo, reemplaza los archivos en `assets-marca/` (mismos nombres) y corre `npm run brand:assets`.
+
+Los componentes nunca usan colores sueltos, solo los nombres de los tokens (`bg-brand`, `text-ink`…). El color de la barra del navegador móvil, el favicon y el script de contraste también leen `brand.css`.
 
 ## Seguridad (resumen)
 

@@ -1,18 +1,14 @@
 /**
  * Verifica el contraste WCAG AA de las combinaciones de color que usa la tienda.
- * Lee la paleta directamente de src/index.css (bloque @theme), así nunca se desincroniza.
+ * Lee la paleta directamente de src/theme/brand.css, así nunca se desincroniza.
  *
  *   npm run check:contrast
  *
  * AA exige 4.5:1 para texto normal y 3:1 para texto grande (≥ 24 px, o ≥ 18.66 px en negrita).
  */
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { readBrandColors } from './brand-tokens.mjs';
 
-const css = await readFile(fileURLToPath(new URL('../src/index.css', import.meta.url)), 'utf8');
-const palette = Object.fromEntries(
-  [...css.matchAll(/--color-([\w-]+):\s*(#[0-9a-f]{6})/gi)].map(([, name, hex]) => [name, hex]),
-);
+const palette = readBrandColors();
 
 // [texto, fondo, mínimo requerido, dónde se usa]
 const PAIRS = [

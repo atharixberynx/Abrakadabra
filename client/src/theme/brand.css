@@ -1,0 +1,59 @@
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ *  MANUAL DE MARCA EN CÓDIGO · Abrakadabra Fashion Shop
+ * ═══════════════════════════════════════════════════════════════════
+ *
+ *  Este es el ÚNICO archivo que hay que editar si cambia la identidad
+ *  visual (colores, tipografías, redondeos, sombras).
+ *
+ *  Cómo funciona:
+ *   - Cada `--color-NOMBRE` crea clases de Tailwind (bg-NOMBRE, text-NOMBRE,
+ *     border-NOMBRE…) y la variable CSS var(--color-NOMBRE).
+ *   - Cada `--font-NOMBRE` crea la clase font-NOMBRE.
+ *   - Los componentes NO usan códigos hex sueltos; solo estos nombres.
+ *     Por eso, al cambiar un valor aquí, cambia en todo el sitio.
+ *
+ *  Después de cambiar colores:
+ *   1. Corre `npm run check:contrast` (verifica accesibilidad WCAG AA).
+ *   2. Si cambió el logo, corre `npm run brand:assets`.
+ *
+ *  No cambies los NOMBRES de los tokens (brand, gold, ink…), solo sus
+ *  valores; los nombres están usados en los componentes.
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+/* ── 1. Tipografías ───────────────────────────────────────────────
+ * Para cambiar de fuente:
+ *   a) Elige las fuentes en https://fonts.google.com y copia la URL de "@import".
+ *   b) Reemplaza la URL de abajo.
+ *   c) Cambia los nombres en --font-display y --font-sans.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Montserrat:wght@400;500;600&display=swap');
+
+/* `static`: publica siempre todas las variables, aunque ninguna clase las use todavía */
+@theme static {
+  /* ── 2. Colores (tomados del logo oficial) ─────────────────────── */
+  --color-brand: #59378d; /* Principal: header, botones, enlaces, precios, footer */
+  --color-brand-dark: #3f2566; /* Hover de botones, texto sobre fondos claros */
+  --color-brand-soft: #795393; /* Elementos secundarios, bordes activos */
+  --color-lavender: #f3eef8; /* Fondos de secciones alternas, tarjetas, chips */
+  --color-gold: #edc246; /* SOLO acento (estrella, insignia "Nuevo"). Nunca texto dorado sobre blanco */
+  --color-ink: #2a1a40; /* Texto principal */
+  --color-white: #ffffff; /* Fondo general */
+
+  /* ── 3. Familias tipográficas ─────────────────────────────────── */
+  --font-display: 'Josefin Sans', ui-sans-serif, system-ui, sans-serif; /* Títulos */
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif; /* Texto general */
+
+  /* Espaciado de letras amplio, como "FASHION SHOP" del logo (nombres de producto) */
+  --tracking-brand: 0.18em;
+
+  /* ── 4. Forma y profundidad ───────────────────────────────────── */
+  --radius-card: 1rem; /* Tarjetas y contenedores (clase rounded-card) */
+  --shadow-soft: 0 4px 16px -4px rgb(89 55 141 / 0.15); /* Sombra sutil (clase shadow-soft) */
+}
+
+/*
+ * Regla de contraste: para texto sobre blanco no uses menos de text-ink/70
+ * (text-ink/60 ya no cumple WCAG AA).
+ */

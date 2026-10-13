@@ -8,7 +8,8 @@
       name="description"
       content="Moda femenina casual chic y de oficina, tallas S a XL, varios colores por modelo y precios accesibles. Compra en línea y retira en tienda en San Salvador."
     />
-    <meta name="theme-color" content="#59378D" />
+    <!-- %BRAND_COLOR% se reemplaza con el color de src/theme/brand.css (ver vite.config.js) -->
+    <meta name="theme-color" content="%BRAND_COLOR%" />
 
     <link rel="icon" type="image/png" sizes="48x48" href="/brand/favicon-48.png" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
@@ -21,13 +22,9 @@
     <meta property="og:image" content="/brand/og-image.png" />
     <meta property="og:locale" content="es_SV" />
 
-    <!-- Tipografías: Josefin Sans (títulos, estilo lineal del logo) y Montserrat (texto) -->
+    <!-- Las tipografías se cargan desde src/theme/brand.css; esto solo acelera la conexión -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Montserrat:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <div id="root"></div>
