@@ -155,3 +155,32 @@ export const customerListQuerySchema = z.object({
   page: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(500).default(1)),
   limit: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(100).default(20)),
 });
+
+const httpsUrl = z
+  .string()
+  .trim()
+  .max(500)
+  .refine((v) => v === '' || /^https:\/\/\S+$/.test(v), 'El enlace debe empezar con https://');
+
+export const settingsSchema = z.object({
+  announcements: z
+    .array(z.string().trim().min(3, 'Cada mensaje necesita al menos 3 letras').max(90, 'Cada mensaje puede tener hasta 90 caracteres'))
+    .min(1, 'Agrega al menos un mensaje')
+    .max(6, 'Máximo 6 mensajes'),
+  whatsappNumber: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ''))
+    .pipe(z.string().regex(/^\d{8,15}$/, 'Escribe el número con código de país, por ejemplo 50377777777')),
+  address: z.object({
+    line1: z.string().trim().min(3, 'Escribe la dirección').max(120),
+    line2: z.string().trim().max(120).default(''),
+    city: z.string().trim().min(2, 'Escribe la ciudad').max(120),
+  }),
+  hours: z
+    .array(z.object({ days: z.string().trim().min(3, 'Escribe los días').max(40), time: z.string().trim().min(3, 'Escribe el horario').max(60) }))
+    .min(1, 'Agrega al menos un horario')
+    .max(4),
+  mapsUrl: httpsUrl.refine((v) => v !== '', 'Pega el enlace de Google Maps'),
+  instagramUrl: httpsUrl,
+  facebookUrl: httpsUrl,
+});

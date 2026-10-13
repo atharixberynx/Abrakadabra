@@ -9,6 +9,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import mongoose from 'mongoose';
 import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { connectDB, disconnectDB } from '../../src/config/db.js';
+import { resetSettingsCache } from '../../src/services/settingsService.js';
 
 export function useTestDatabase() {
   let replSet;
@@ -23,6 +24,7 @@ export function useTestDatabase() {
   afterEach(async () => {
     const collections = Object.values(mongoose.connection.collections);
     await Promise.all(collections.map((collection) => collection.deleteMany({})));
+    resetSettingsCache(); // los ajustes se guardan en caché en memoria
   });
 
   afterAll(async () => {

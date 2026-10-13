@@ -4,6 +4,10 @@
  * así ninguna ruta nueva puede quedar abierta por olvido.
  */
 import { Router } from 'express';
+import * as settings from '../../controllers/settings.controller.js';
+import { validate } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/httpError.js';
+import { settingsSchema } from '../../validators/admin.validators.js';
 import { isCloudinaryConfigured } from '../../services/imageService.js';
 import bannerRoutes from './banners.routes.js';
 import categoryRoutes from './categories.routes.js';
@@ -27,5 +31,6 @@ router.use('/banners', bannerRoutes);
 router.use('/orders', orderAdminRoutes);
 router.use('/customers', customerAdminRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.put('/settings', validate({ body: settingsSchema }), asyncHandler(settings.update));
 
 export default router;

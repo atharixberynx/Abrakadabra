@@ -1,11 +1,26 @@
 /**
- * Datos de la sucursal que se copian en cada pedido (dónde y cuándo retirarlo).
- * En la Fase 7 se podrán editar desde Panel › Ajustes; estos son los valores por defecto.
+ * Valores POR DEFECTO de los ajustes de la tienda.
+ * Se usan mientras la administradora no guarde cambios en Panel › Ajustes
+ * (a partir de ahí manda lo guardado en la base de datos).
  */
-export const STORE_PICKUP = {
-  name: 'Abrakadabra Fashion Shop',
-  address:
-    'Alameda Manuel Enrique Araujo 201, Centro Comercial Feria Rosa, local 201-G, San Salvador, El Salvador',
-  // En minúscula: se usa dentro de la frase "Horario: lunes a viernes…" de la confirmación
-  hours: 'lunes a viernes de 8:00 a. m. a 4:30 p. m.; sábados de 8:00 a. m. a 12:00 m.',
+export const DEFAULT_SETTINGS = {
+  announcements: [
+    'Compra en línea y retira en tienda',
+    'Tallas S a XL y talla única',
+    'Precios desde $5',
+    'Venta al detalle y por mayoreo',
+  ],
+  whatsappNumber: '50300000000',
+  address: {
+    line1: 'Alameda Manuel Enrique Araujo 201',
+    line2: 'Centro Comercial Feria Rosa, local 201-G',
+    city: 'San Salvador, El Salvador',
+  },
+  hours: [
+    { days: 'Lunes a viernes', time: '8:00 a. m. a 4:30 p. m.' },
+    { days: 'Sábados', time: '8:00 a. m. a 12:00 m.' },
+  ],
+  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Centro+Comercial+Feria+Rosa+San+Salvador',
+  instagramUrl: 'https://www.instagram.com/abrakadabraes',
+  facebookUrl: 'https://www.facebook.com/abrakadabraes',
 };

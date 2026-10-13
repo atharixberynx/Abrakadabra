@@ -12,7 +12,6 @@
  */
 import mongoose from 'mongoose';
 import { logger } from '../config/logger.js';
-import { STORE_PICKUP } from '../config/store.js';
 import { nextSequence } from '../models/Counter.js';
 import { CUSTOMER_VISIBLE_STATUSES, Order } from '../models/Order.js';
 import { Product, computeDerivedFields } from '../models/Product.js';
@@ -20,6 +19,7 @@ import { HttpError } from '../utils/httpError.js';
 import { BLOCKING_ISSUES, validateCart } from './cartService.js';
 import { detectBrand, last4 } from './payments/card.js';
 import { paymentProvider } from './payments/index.js';
+import { getPickupInfo } from './settingsService.js';
 
 const PENDING_EXPIRY_MS = 15 * 60 * 1000;
 
@@ -91,6 +91,7 @@ export async function checkout(user, { items, card, idempotencyKey }) {
   }
 
   // 2. Reservar stock y crear el pedido (todo o nada)
+  const pickup = await getPickupInfo(); // dirección y horario vigentes (Panel › Ajustes)
   const order = await withTransaction(async (session) => {
     for (const line of cart.lines) {
       const result = await Product.updateOne(
@@ -136,7 +137,7 @@ export async function checkout(user, { items, card, idempotencyKey }) {
           statusHistory: [{ status: 'pendiente_pago' }],
           // Solo marca y últimos 4 dígitos: nunca el número completo ni el CVV
           payment: { provider: paymentProvider.name, brand: detectBrand(card.number), last4: last4(card.number) },
-          pickup: { address: STORE_PICKUP.address, hours: STORE_PICKUP.hours },
+          pickup,
           idempotencyKey,
         },
       ],
