@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <rect width="800" height="1000" fill="#F3EEF8"/>
+  <path transform="translate(70 70) scale(1.6)" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z" fill="#EDC246"/><path transform="translate(690 860) scale(1.2)" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z" fill="#EDC246"/>
+  
+  <g ><path d="M330 380 m-70 0 a70 70 0 1 0 140 0 a70 70 0 1 0 -140 0 M470 380 m-70 0 a70 70 0 1 0 140 0 a70 70 0 1 0 -140 0 M330 250 V310 M470 250 V310" fill="none" stroke="#B8B8B8" stroke-width="22" stroke-linecap="round"/></g>
+  <text x="400" y="945" text-anchor="middle" font-family="Josefin Sans, Montserrat, sans-serif" font-size="34" letter-spacing="5" fill="#59378D">ARETES DE ARO</text>
+  <text x="400" y="985" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="24" fill="#59378D" opacity="0.8">Plateado · Foto de ejemplo</text>
+</svg>
