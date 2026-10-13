@@ -1,4 +1,5 @@
 import * as catalog from '../services/catalogService.js';
+import { listPublicBanners } from '../services/bannerService.js';
 
 // "no-cache": el navegador puede guardar la respuesta, pero pregunta antes de reutilizarla
 // (Express responde 304 si no cambió). Así, lo que edita el admin se ve de inmediato en la tienda.
@@ -27,4 +28,9 @@ export async function getProduct(req, res) {
 export async function getRelated(req, res) {
   cachePublic(res);
   res.json({ items: await catalog.getRelatedProducts(req.params.slug, req.query.limit) });
+}
+
+export async function listBanners(_req, res) {
+  cachePublic(res);
+  res.json({ banners: await listPublicBanners() });
 }

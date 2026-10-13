@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "seed:admin": "node scripts/seedAdmin.js",
-    "seed:catalog": "node scripts/seedCatalog.js"
+    "seed:catalog": "node scripts/seedCatalog.js",
+    "seed:banners": "node scripts/seedBanners.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

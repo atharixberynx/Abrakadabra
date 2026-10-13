@@ -5,6 +5,7 @@
  */
 import { Router } from 'express';
 import { isCloudinaryConfigured } from '../../services/imageService.js';
+import bannerRoutes from './banners.routes.js';
 import categoryRoutes from './categories.routes.js';
 import productRoutes from './products.routes.js';
 
@@ -21,5 +22,6 @@ router.get('/', (req, res) => {
 
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
+router.use('/banners', bannerRoutes);
 
 export default router;

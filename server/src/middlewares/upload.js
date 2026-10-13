@@ -25,7 +25,8 @@ const multerUpload = multer({
 /** Revisa la firma binaria de cada archivo subido */
 async function validateImageContent(req, _res, next) {
   try {
-    const files = req.files ?? (req.file ? [req.file] : []);
+    // req.files puede ser un arreglo (array) o un objeto por campo (fields)
+    const files = req.file ? [req.file] : Array.isArray(req.files) ? req.files : Object.values(req.files ?? {}).flat();
     for (const file of files) {
       const detected = await fileTypeFromBuffer(file.buffer);
       if (!detected || !ALLOWED_MIME.has(detected.mime)) {
@@ -40,6 +41,15 @@ async function validateImageContent(req, _res, next) {
 
 /** Varias imágenes en el campo "images" */
 export const uploadImages = (maxCount) => [multerUpload.array('images', maxCount), validateImageContent];
+
+/** Banner: "desktop" (obligatoria al crear) y "mobile" (opcional) */
+export const uploadBannerImages = [
+  multerUpload.fields([
+    { name: 'desktop', maxCount: 1 },
+    { name: 'mobile', maxCount: 1 },
+  ]),
+  validateImageContent,
+];
 
 /** Una sola imagen en el campo "image" */
 export const uploadSingleImage = [multerUpload.single('image'), validateImageContent];

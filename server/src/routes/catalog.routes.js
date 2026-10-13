@@ -5,6 +5,7 @@
  *   GET /api/products/filters    (opciones disponibles para los filtros)
  *   GET /api/products/:slug
  *   GET /api/products/:slug/related
+ *   GET /api/banners             (carrusel de la página de inicio)
  */
 import { Router } from 'express';
 import * as catalog from '../controllers/catalog.controller.js';
@@ -19,6 +20,9 @@ import {
 
 export const categoryRoutes = Router();
 categoryRoutes.get('/', asyncHandler(catalog.listCategories));
+
+export const bannerRoutes = Router();
+bannerRoutes.get('/', asyncHandler(catalog.listBanners));
 
 export const productRoutes = Router();
 productRoutes.get('/', validate({ query: productListQuerySchema }), asyncHandler(catalog.listProducts));

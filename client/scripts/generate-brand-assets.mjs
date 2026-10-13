@@ -9,6 +9,10 @@
  *  - favicon-48.png, apple-touch-icon.png, icon-192.png, icon-512.png → íconos (cara + estrella)
  *  - og-image.png                  → vista previa al compartir en redes (1200×630)
  *
+ * Y en client/public/banners/:
+ *  - banner-abrakadabra.webp       → banner predeterminado del carrusel de inicio
+ *                                    (desde assets-marca/banner-morado.png)
+ *
  * Vuelve a ejecutarlo si la marca cambia los logos.
  */
 import sharp from 'sharp';
@@ -63,3 +67,18 @@ await sharp({ create: { width: 1200, height: 630, channels: 4, background: BRAND
   .toFile(path.join(OUT, 'og-image.png'));
 
 console.log(`✔ Recursos de marca generados en ${path.relative(process.cwd(), OUT)}`);
+
+// Banner predeterminado del carrusel (si la marca dejó uno en assets-marca)
+const BANNER_SRC = path.join(SRC, 'banner-morado.png');
+const BANNERS_OUT = path.resolve(root, '../public/banners');
+try {
+  await mkdir(BANNERS_OUT, { recursive: true });
+  await sharp(BANNER_SRC)
+    .resize({ width: 1640, withoutEnlargement: true })
+    .webp({ quality: 82 })
+    .toFile(path.join(BANNERS_OUT, 'banner-abrakadabra.webp'));
+  console.log('✔ Banner predeterminado generado en public/banners/banner-abrakadabra.webp');
+} catch (err) {
+  if (err.code !== 'ENOENT' && !String(err.message).includes('missing')) throw err;
+  console.log('ℹ No hay assets-marca/banner-morado.png: se omite el banner predeterminado');
+}

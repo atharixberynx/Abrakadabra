@@ -7,7 +7,7 @@ import healthRoutes from './health.routes.js';
 import authRoutes from './auth.routes.js';
 import userRoutes from './user.routes.js';
 import adminRoutes from './admin/index.js';
-import { categoryRoutes, productRoutes } from './catalog.routes.js';
+import { bannerRoutes, categoryRoutes, productRoutes } from './catalog.routes.js';
 
 const router = Router();
 
@@ -16,6 +16,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes);
+router.use('/banners', bannerRoutes);
 
 // Todo /api/admin exige sesión iniciada y rol admin (la seguridad real vive aquí, no en React)
 router.use('/admin', requireAuth, requireRole('admin'), adminRoutes);
