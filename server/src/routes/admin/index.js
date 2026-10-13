@@ -2,14 +2,24 @@
  * Rutas del panel administrativo (/api/admin/*).
  * Todas quedan protegidas con requireAuth + requireRole('admin') en routes/index.js,
  * así ninguna ruta nueva puede quedar abierta por olvido.
- * Las secciones (productos, categorías, pedidos…) se agregan en las Fases 4 a 7.
  */
 import { Router } from 'express';
+import { isCloudinaryConfigured } from '../../services/imageService.js';
+import categoryRoutes from './categories.routes.js';
+import productRoutes from './products.routes.js';
 
 const router = Router();
 
+// Información básica del panel (el frontend la usa para avisar si falta configurar Cloudinary)
 router.get('/', (req, res) => {
-  res.json({ message: 'Panel administrativo', admin: req.user.name });
+  res.json({
+    message: 'Panel administrativo',
+    admin: req.user.name,
+    imageUploadsEnabled: isCloudinaryConfigured(),
+  });
 });
+
+router.use('/products', productRoutes);
+router.use('/categories', categoryRoutes);
 
 export default router;

@@ -1,7 +1,8 @@
 import * as catalog from '../services/catalogService.js';
 
-// El catálogo cambia poco: el navegador puede reutilizar la respuesta 30 s
-const cachePublic = (res) => res.set('Cache-Control', 'public, max-age=30');
+// "no-cache": el navegador puede guardar la respuesta, pero pregunta antes de reutilizarla
+// (Express responde 304 si no cambió). Así, lo que edita el admin se ve de inmediato en la tienda.
+const cachePublic = (res) => res.set('Cache-Control', 'no-cache');
 
 export async function listCategories(_req, res) {
   cachePublic(res);

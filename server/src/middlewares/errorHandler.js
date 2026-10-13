@@ -24,6 +24,18 @@ function normalizeError(err) {
       details: err.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message })),
     };
   }
+  // Errores de Multer (subida de archivos)
+  if (err.name === 'MulterError') {
+    const messages = {
+      LIMIT_FILE_SIZE: 'Cada imagen debe pesar como máximo 5 MB',
+      LIMIT_FILE_COUNT: 'Máximo 8 imágenes por producto',
+      LIMIT_UNEXPECTED_FILE: 'Campo de archivo inesperado o demasiadas imágenes',
+    };
+    return {
+      status: err.code === 'LIMIT_FILE_SIZE' ? 413 : 400,
+      message: messages[err.code] ?? 'No se pudo procesar la subida de archivos',
+    };
+  }
   // Errores de express.json()
   if (err.type === 'entity.too.large') {
     return { status: 413, message: 'La petición es demasiado grande' };
