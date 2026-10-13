@@ -54,6 +54,9 @@ export default function RegisterPage() {
       subtitle="Regístrate para comprar en línea y ver el estado de tus pedidos."
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {location.state?.reason === 'checkout' && (
+          <Alert variant="info">Crea tu cuenta para completar tu compra. Tu carrito se queda guardado.</Alert>
+        )}
         <Alert variant="error">{serverError}</Alert>
 
         <TextField

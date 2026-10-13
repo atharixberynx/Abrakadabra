@@ -46,6 +46,30 @@ export const useCartStore = create()(
 
       removeItem: (key) => set((state) => ({ items: state.items.filter((line) => line.key !== key) })),
 
+      /**
+       * Aplica la revalidación del backend: precio actual, stock máximo y cantidad ajustada
+       * si ya no alcanzan las unidades. Solo cambia el estado si algo es distinto
+       * (así no se vuelve a revalidar en bucle).
+       */
+      applyValidation: (lines) =>
+        set((state) => {
+          const byKey = new Map(lines.map((l) => [l.key, l]));
+          let changed = false;
+          const items = state.items.map((item) => {
+            const line = byKey.get(item.key);
+            if (!line || line.unitPrice === undefined) return item;
+            const maxStock = line.availableQuantity;
+            const quantity = maxStock > 0 ? Math.min(item.quantity, maxStock) : item.quantity;
+            const next = { ...item, price: line.unitPrice, maxStock, quantity, image: line.image ?? item.image };
+            if (next.price !== item.price || next.maxStock !== item.maxStock || next.quantity !== item.quantity || next.image !== item.image) {
+              changed = true;
+              return next;
+            }
+            return item;
+          });
+          return changed ? { items } : state;
+        }),
+
       clear: () => set({ items: [] }),
     }),
     {

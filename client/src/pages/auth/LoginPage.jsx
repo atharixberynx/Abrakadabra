@@ -47,6 +47,11 @@ export default function LoginPage() {
   return (
     <AuthLayout title="Iniciar sesión" subtitle="Qué gusto verte de nuevo.">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+        {location.state?.reason === 'checkout' && (
+          <Alert variant="info">
+            Para completar tu compra, inicia sesión o crea una cuenta. Tu carrito se queda guardado.
+          </Alert>
+        )}
         <Alert variant="error">{serverError}</Alert>
 
         <TextField

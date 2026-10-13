@@ -13,6 +13,8 @@ import HomePage from './pages/HomePage.jsx';
 import CatalogPage from './pages/CatalogPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import CartPage from './pages/CartPage.jsx';
+import CheckoutPage from './pages/CheckoutPage.jsx';
+import OrderPage from './pages/OrderPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
@@ -38,6 +40,10 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // Comprar exige cuenta: sin sesión, ProtectedRoute lleva a iniciar sesión y luego vuelve aquí
+      { path: '/checkout', element: <ProtectedRoute><CheckoutPage /></ProtectedRoute> },
+      { path: '/pedido/:orderNumber', element: <ProtectedRoute><OrderPage /></ProtectedRoute> },
+      { path: '/cuenta/pedidos/:orderNumber', element: <ProtectedRoute><OrderPage /></ProtectedRoute> },
       ...(BrandGuidePage
         ? [{ path: '/guia-de-marca', element: <Suspense fallback={<StoreLoader />}><BrandGuidePage /></Suspense> }]
         : []),

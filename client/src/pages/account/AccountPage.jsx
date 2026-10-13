@@ -1,5 +1,5 @@
 /**
- * Mi cuenta: datos personales, cambio de contraseña y (Fase 5) "Mis pedidos".
+ * Mi cuenta: "Mis pedidos", datos personales y cambio de contraseña.
  */
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -12,7 +12,11 @@ import { StarIcon } from '../../components/ui/StarIcon.jsx';
 import { TextField } from '../../components/ui/TextField.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
+import { useFetch } from '../../hooks/useFetch.js';
 import { apiFetch } from '../../lib/api.js';
+import { formatPrice } from '../../lib/format.js';
+import { formatDate } from '../../lib/orders.js';
+import { StatusBadge } from '../OrderPage.jsx';
 import { applyApiErrors } from '../../lib/forms.js';
 import { changePasswordSchema, profileSchema } from '../../schemas/auth.js';
 
@@ -22,6 +26,49 @@ function Section({ title, children }) {
       <h2 className="mb-5 text-xl text-brand-dark">{title}</h2>
       {children}
     </section>
+  );
+}
+
+const pieces = (order) => order.items.reduce((n, i) => n + i.quantity, 0);
+
+function MyOrders() {
+  const { data, loading, error, reload } = useFetch('/orders/mine', { cache: false });
+  const orders = data?.orders ?? [];
+
+  if (loading) return <p className="py-4 text-center text-sm text-ink/70">Cargando tus pedidos…</p>;
+  if (error) {
+    return (
+      <p className="py-4 text-center text-sm text-ink/80">
+        {error.message}{' '}
+        <button type="button" onClick={reload} className="font-medium text-brand underline">Reintentar</button>
+      </p>
+    );
+  }
+  if (orders.length === 0) {
+    return (
+      <div className="py-6 text-center">
+        <p className="text-ink/80">Todavía no tienes pedidos.</p>
+        <p className="mt-1 text-sm text-ink/70">Aquí verás el estado de tus compras.</p>
+        <Button as={Link} to="/catalogo" variant="secondary" size="sm" className="mt-4">Ir a la tienda</Button>
+      </div>
+    );
+  }
+  return (
+    <ul className="divide-y divide-lavender">
+      {orders.map((order) => (
+        <li key={order.id}>
+          <Link to={`/cuenta/pedidos/${order.orderNumber}`} className="flex flex-wrap items-center justify-between gap-3 py-4 hover:bg-lavender/40 sm:px-2">
+            <div>
+              <p className="font-semibold text-brand-dark">{order.orderNumber}</p>
+              <p className="text-sm text-ink/80">
+                {formatDate(order.createdAt)} · {pieces(order)} {pieces(order) === 1 ? 'prenda' : 'prendas'} · {formatPrice(order.total)}
+              </p>
+            </div>
+            <StatusBadge status={order.status} />
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -160,13 +207,7 @@ export default function AccountPage() {
 
       <div className="space-y-6">
         <Section title="Mis pedidos">
-          <div className="py-6 text-center">
-            <p className="text-ink/80">Todavía no tienes pedidos.</p>
-            <p className="mt-1 text-sm text-ink/70">Aquí verás el estado de tus compras.</p>
-            <Button as={Link} to="/" variant="secondary" size="sm" className="mt-4">
-              Ir a la tienda
-            </Button>
-          </div>
+          <MyOrders />
         </Section>
         <Section title="Mis datos">
           <ProfileForm />
