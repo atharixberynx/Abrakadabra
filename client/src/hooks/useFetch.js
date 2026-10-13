@@ -12,6 +12,19 @@ import { apiFetch } from '../lib/api.js';
 const CACHE_TTL_MS = 30_000;
 const cache = new Map();
 
+/**
+ * Aviso de "el catálogo cambió": cuando el panel admin guarda algo, todas las pestañas
+ * abiertas de la tienda recargan sus datos (menú de categorías, banners, productos…).
+ */
+const invalidationListeners = new Set();
+const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('abk-catalogo') : null;
+
+function notifyInvalidation() {
+  cache.clear();
+  invalidationListeners.forEach((listener) => listener());
+}
+channel?.addEventListener('message', notifyInvalidation);
+
 function readCache(path) {
   const entry = cache.get(path);
   return entry && Date.now() - entry.time < CACHE_TTL_MS ? entry.data : undefined;
@@ -59,6 +72,14 @@ export function useFetch(path, { slowAfterMs = 4000, cache: useCache = true } = 
     };
   }, [path, attempt, slowAfterMs, useCache]);
 
+  // Recarga silenciosa cuando el panel admin avisa que el catálogo cambió
+  useEffect(() => {
+    if (!path || !useCache) return undefined;
+    const listener = () => setAttempt((n) => n + 1);
+    invalidationListeners.add(listener);
+    return () => invalidationListeners.delete(listener);
+  }, [path, useCache]);
+
   /** reload() muestra el estado de carga; reload({ silent: true }) actualiza sin parpadeo */
   const reload = useCallback(
     (options) => {
@@ -72,7 +93,11 @@ export function useFetch(path, { slowAfterMs = 4000, cache: useCache = true } = 
   return { data: state.data, error: state.error, loading: state.loading, slow, reload };
 }
 
-/** Borra la caché (p. ej. después de que el admin edita productos) */
+/**
+ * Llamar después de que el admin cambia algo: borra la caché y avisa a esta y a las demás
+ * pestañas para que la tienda muestre los datos nuevos de inmediato.
+ */
 export function clearFetchCache() {
-  cache.clear();
+  notifyInvalidation();
+  channel?.postMessage('cambio');
 }
