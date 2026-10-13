@@ -21,7 +21,7 @@ export function ProductCard({ product }) {
   const extraColors = product.colors.length - MAX_SWATCHES;
 
   return (
-    <article className="group">
+    <article className="group relative">
       <Link
         to={href}
         className="relative block aspect-[4/5] overflow-hidden rounded-card bg-lavender"

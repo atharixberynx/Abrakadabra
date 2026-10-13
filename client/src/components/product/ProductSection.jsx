@@ -28,7 +28,9 @@ export function SectionHeader({ title, subtitle, to, linkLabel = 'Ver todo' }) {
   );
 }
 
-const ROW = 'scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0';
+// `relative`: sin esto, los textos para lector de pantalla (sr-only, position: absolute)
+// de las tarjetas fuera de vista escapan del scroll y ensanchan toda la página en el celular.
+const ROW = 'scrollbar-none relative -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0';
 const ITEM = 'w-[44%] shrink-0 snap-start sm:w-[30%] md:w-auto';
 
 /** `query`: filtros para /products (p. ej. "nuevos=1&limit=8"), o `path`: ruta completa de la API */

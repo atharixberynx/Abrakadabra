@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { imageSrcSet, imageUrl } from '../../lib/images.js';
+import { Portal } from '../ui/Portal.jsx';
 
 function Lightbox({ images, startIndex, alt, onClose }) {
   const [index, setIndex] = useState(startIndex);
@@ -138,7 +139,7 @@ export function ProductGallery({ images, alt }) {
         <div
           ref={trackRef}
           onScroll={handleScroll}
-          className="scrollbar-none flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto rounded-card bg-lavender"
+          className="scrollbar-none relative flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto rounded-card bg-lavender"
         >
           {images.map((image, i) => (
             <button
@@ -184,7 +185,11 @@ export function ProductGallery({ images, alt }) {
         )}
       </div>
 
-      {lightboxOpen && <Lightbox images={images} startIndex={index} alt={alt} onClose={closeLightbox} />}
+      {lightboxOpen && (
+        <Portal>
+          <Lightbox images={images} startIndex={index} alt={alt} onClose={closeLightbox} />
+        </Portal>
+      )}
     </div>
   );
 }

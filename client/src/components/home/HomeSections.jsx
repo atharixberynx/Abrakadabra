@@ -51,7 +51,7 @@ export function CategoryMosaic() {
       </h2>
       <StarDivider className="mt-3 mb-8" />
       {/* Celular: fila deslizable · Escritorio: cuadrícula de 4 */}
-      <ul className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-5 sm:overflow-visible sm:px-0">
+      <ul className="scrollbar-none relative -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-5 sm:overflow-visible sm:px-0">
         {loading
           ? Array.from({ length: 8 }, (_, i) => (
               <li key={i} className="aspect-[4/5] w-[38%] shrink-0 animate-pulse rounded-card bg-lavender sm:w-auto" aria-hidden="true" />

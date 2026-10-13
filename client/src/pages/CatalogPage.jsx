@@ -10,6 +10,7 @@ import { findPriceRange } from '../components/catalog/priceRanges.js';
 import { ProductGrid, ProductGridSkeleton } from '../components/product/ProductGrid.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { StarIcon } from '../components/ui/StarIcon.jsx';
+import { Portal } from '../components/ui/Portal.jsx';
 import { StoreLoader } from '../components/ui/StoreLoader.jsx';
 import { useCategories } from '../hooks/useCategories.js';
 import { useFetch } from '../hooks/useFetch.js';
@@ -229,31 +230,33 @@ export default function CatalogPage() {
       </div>
 
       {/* Hoja de filtros (celular) */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sheetOpen ? '' : 'pointer-events-none'}`} {...(!sheetOpen && { inert: '' })}>
-        <div className={`absolute inset-0 bg-ink/40 transition-opacity ${sheetOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setSheetOpen(false)} />
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Filtros"
-          className={`absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-3xl bg-white transition-transform duration-300 ${sheetOpen ? 'translate-y-0' : 'translate-y-full'}`}
-        >
-          <div className="flex items-center justify-between border-b border-lavender px-5 py-4">
-            <h2 className="text-xl text-brand-dark">Filtros</h2>
-            <button type="button" onClick={() => setSheetOpen(false)} className="grid size-10 place-items-center rounded-full hover:bg-lavender" aria-label="Cerrar filtros">
-              <X className="size-6" />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-5 py-5">{panel}</div>
-          <div className="flex gap-3 border-t border-lavender p-4">
-            <Button variant="secondary" className="flex-1" onClick={clearFilters} disabled={activeCount === 0}>
-              Limpiar
-            </Button>
-            <Button className="flex-[2]" onClick={() => setSheetOpen(false)}>
-              {loading ? 'Buscando…' : `Ver ${total} ${total === 1 ? 'prenda' : 'prendas'}`}
-            </Button>
+      <Portal>
+        <div className={`fixed inset-0 z-50 lg:hidden ${sheetOpen ? '' : 'pointer-events-none'}`} {...(!sheetOpen && { inert: '' })}>
+          <div className={`absolute inset-0 bg-ink/40 transition-opacity ${sheetOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setSheetOpen(false)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filtros"
+            className={`absolute inset-x-0 bottom-0 flex max-h-[88dvh] flex-col rounded-t-3xl bg-white transition-transform duration-300 ${sheetOpen ? 'translate-y-0' : 'translate-y-full'}`}
+          >
+            <div className="flex items-center justify-between border-b border-lavender px-5 py-4">
+              <h2 className="text-xl text-brand-dark">Filtros</h2>
+              <button type="button" onClick={() => setSheetOpen(false)} className="grid size-10 place-items-center rounded-full hover:bg-lavender" aria-label="Cerrar filtros">
+                <X className="size-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-5">{panel}</div>
+            <div className="flex gap-3 border-t border-lavender p-4">
+              <Button variant="secondary" className="flex-1" onClick={clearFilters} disabled={activeCount === 0}>
+                Limpiar
+              </Button>
+              <Button className="flex-[2]" onClick={() => setSheetOpen(false)}>
+                {loading ? 'Buscando…' : `Ver ${total} ${total === 1 ? 'prenda' : 'prendas'}`}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </Portal>
     </main>
   );
 }
