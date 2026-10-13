@@ -1,14 +1,14 @@
 /**
- * Página temporal de la Fase 1: muestra la identidad visual (paleta, tipografía,
- * botones, insignias) y el estado de conexión con la API.
- * Se reemplaza por la página de inicio real en la Fase 3.
+ * Guía de marca (solo en desarrollo, en /guia-de-marca).
+ * Muestra en vivo los colores, tipografías, botones e insignias definidos en
+ * src/theme/brand.css, y el estado de la API. Útil para revisar un cambio de manual de marca.
  */
-import { store } from '../config/store.js';
-import { useApiHealth } from '../hooks/useApiHealth.js';
-import { Button } from '../components/ui/Button.jsx';
-import { Badge } from '../components/ui/Badge.jsx';
-import { StarDivider, StarIcon } from '../components/ui/StarIcon.jsx';
-import { StoreLoader } from '../components/ui/StoreLoader.jsx';
+import { store } from '../../config/store.js';
+import { useApiHealth } from '../../hooks/useApiHealth.js';
+import { Button } from '../../components/ui/Button.jsx';
+import { Badge } from '../../components/ui/Badge.jsx';
+import { StarDivider, StarIcon } from '../../components/ui/StarIcon.jsx';
+import { StoreLoader } from '../../components/ui/StoreLoader.jsx';
 
 // Los valores hex se leen del CSS (src/theme/brand.css), así esta guía nunca se desactualiza
 const PALETTE = [
@@ -49,7 +49,7 @@ function ApiStatus() {
   );
 }
 
-export default function HomePage() {
+export default function BrandGuidePage() {
   return (
     <>
       <main>
@@ -59,9 +59,7 @@ export default function HomePage() {
             {store.slogan}
           </h1>
           <p className="mx-auto mt-4 max-w-md text-ink/80">{store.tagline}</p>
-          <Button className="mt-8" size="lg" disabled title="Disponible en la Fase 3">
-            Ver catálogo
-          </Button>
+          <p className="mt-6 text-sm text-ink/70">Guía de marca · solo visible en desarrollo</p>
         </section>
 
         <section className="mx-auto max-w-6xl space-y-12 px-4 py-16">

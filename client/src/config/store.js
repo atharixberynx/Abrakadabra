@@ -75,6 +75,18 @@ export const store = {
     onWhite: '/brand/logo-fondo-blanco.webp',
     onPurple: '/brand/logo-fondo-morado.webp',
   },
+
+  /** Banner principal de inicio: imagen distinta para celular y escritorio */
+  hero: {
+    title: 'Be fashionable, be Abrakadabra',
+    subtitle: 'Moda casual chic y de oficina, de la S a la XL',
+    cta: 'Ver catálogo',
+    imageMobile: '/banners/hero-mobile.svg',
+    imageDesktop: '/banners/hero-desktop.svg',
+  },
+
+  /** Sección de productos destacada en inicio (la línea estrella de la marca) */
+  featuredCategory: { slug: 'palazzos', title: 'Palazzos', subtitle: 'Nuestra línea estrella' },
 };
 
 /** Arma un enlace de WhatsApp con un mensaje prellenado */

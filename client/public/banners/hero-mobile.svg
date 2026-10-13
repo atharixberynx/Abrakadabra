@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 960" width="800" height="960">
+  <!-- Banner de ejemplo (celular). Reemplazable desde el panel admin (Fase 7). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F3EEF8"/>
+      <stop offset="1" stop-color="#E6DAF2"/>
+    </linearGradient>
+    <path id="star" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z"/>
+  </defs>
+  <rect width="800" height="960" fill="url(#bg)"/>
+  <g fill="none" stroke="#795393" stroke-width="3" opacity="0.5">
+    <path d="M120 1000 C120 700 260 540 400 540 S680 700 680 1000"/>
+    <path d="M180 1000 C180 740 290 600 400 600 S620 740 620 1000"/>
+    <path d="M240 1000 C240 780 320 660 400 660 S560 780 560 1000"/>
+  </g>
+  <g fill="#59378D" opacity="0.1">
+    <circle cx="400" cy="860" r="130"/>
+  </g>
+  <g fill="#EDC246">
+    <use href="#star" transform="translate(376 470) scale(2)"/>
+    <use href="#star" transform="translate(350 460) scale(0.6)"/>
+    <use href="#star" transform="translate(440 500) scale(0.6)"/>
+    <use href="#star" transform="translate(60 70) scale(0.9)"/>
+    <use href="#star" transform="translate(700 380) scale(1)"/>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 640" width="1600" height="640">
+  <!-- Banner de ejemplo (escritorio). Reemplazable desde el panel admin (Fase 7). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F3EEF8"/>
+      <stop offset="1" stop-color="#E6DAF2"/>
+    </linearGradient>
+    <path id="star" d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z"/>
+  </defs>
+  <rect width="1600" height="640" fill="url(#bg)"/>
+  <g fill="none" stroke="#795393" stroke-width="3" opacity="0.55">
+    <path d="M1000 700 C1000 330 1130 120 1260 120 S1520 330 1520 700"/>
+    <path d="M1050 700 C1050 370 1160 175 1260 175 S1470 370 1470 700"/>
+    <path d="M1100 700 C1100 410 1190 230 1260 230 S1420 410 1420 700"/>
+    <path d="M940 700 C960 420 1060 260 1180 240"/>
+    <path d="M1580 700 C1560 420 1460 260 1340 240"/>
+  </g>
+  <g fill="#59378D" opacity="0.12">
+    <circle cx="1260" cy="470" r="150"/>
+  </g>
+  <g fill="#EDC246">
+    <use href="#star" transform="translate(1236 40) scale(2)"/>
+    <use href="#star" transform="translate(1210 30) scale(0.6)"/>
+    <use href="#star" transform="translate(1300 70) scale(0.6)"/>
+    <use href="#star" transform="translate(880 120) scale(0.9)"/>
+    <use href="#star" transform="translate(1480 520) scale(1.1)"/>
+    <use href="#star" transform="translate(60 560) scale(0.8)"/>
+  </g>
+</svg>
