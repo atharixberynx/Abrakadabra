@@ -22,6 +22,17 @@ async function start() {
     logger.info(`API escuchando en http://localhost:${env.PORT}/api (${env.NODE_ENV})`);
   });
 
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.fatal(
+        `El puerto ${env.PORT} ya está en uso. ¿Tienes otra terminal con "npm run dev" abierta?`,
+      );
+    } else {
+      logger.fatal({ err }, 'No se pudo iniciar el servidor');
+    }
+    process.exit(1);
+  });
+
   // Cierre ordenado (Render envía SIGTERM al redeplegar)
   const shutdown = async (signal) => {
     logger.info(`${signal} recibido, cerrando…`);
