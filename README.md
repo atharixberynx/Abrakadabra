@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 1 de 8 (base del proyecto). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 2 de 8 (autenticación). Este README se completa en cada fase.
 
 ---
 
@@ -36,10 +36,15 @@ Proyecto académico de Desarrollo de Software, pensado para que la marca pueda a
 ├── server/          # Express + Mongoose (API REST)
 │   ├── src/
 │   │   ├── config/       # variables de entorno, base de datos, logger
-│   │   ├── middlewares/  # seguridad, validación, errores
-│   │   ├── routes/       # rutas de la API
+│   │   ├── controllers/  # reciben la petición y arman la respuesta
+│   │   ├── middlewares/  # seguridad, autenticación, validación, errores
+│   │   ├── models/       # esquemas de Mongoose
+│   │   ├── routes/       # rutas de la API (admin/ protegidas)
+│   │   ├── services/     # lógica de negocio
+│   │   ├── validators/   # esquemas de Zod
 │   │   └── utils/
-│   └── tests/
+│   ├── scripts/          # seeds (administrador, datos de ejemplo)
+│   └── tests/            # pruebas con MongoDB en memoria
 ├── assets-marca/    # logos originales de la marca
 └── README.md
 ```
@@ -78,8 +83,30 @@ En desarrollo, Vite reenvía `/api` al backend (`localhost:4000`), así el naveg
 | raíz      | `npm run dev`            | Levanta API y tienda juntas                                     |
 | raíz      | `npm test`               | Pruebas del backend                                             |
 | raíz      | `npm run lint`           | Revisa el código de server y client                             |
+| `server/` | `npm run seed:admin`     | Crea la primera cuenta de administración (ver abajo)            |
 | `client/` | `npm run brand:assets`   | Regenera logos optimizados, favicon e imagen Open Graph         |
 | `client/` | `npm run check:contrast` | Verifica contraste WCAG AA de la paleta                         |
+
+## Cuentas y administración
+
+- Las clientas crean su cuenta en `/registro`. El registro **siempre** crea cuentas con rol `customer`, aunque alguien intente enviar `role: "admin"`.
+- La **única** forma de crear una cuenta de administración es el script de seed:
+
+```bash
+# 1. Define ADMIN_EMAIL y ADMIN_PASSWORD en server/.env
+# 2. Ejecuta (desde server/):
+npm run seed:admin
+# Para restablecer la contraseña de una cuenta admin existente:
+npm run seed:admin -- --reset
+```
+
+Credenciales de **demostración** (solo de ejemplo, cámbialas antes de publicar el sitio):
+
+| Correo                    | Contraseña      |
+| ------------------------- | --------------- |
+| `admin@abrakadabra.local` | `CambiaEsta123` |
+
+Al iniciar sesión, el equipo de la tienda entra al panel en `/admin`.
 
 ## Variables de entorno
 
@@ -124,6 +151,17 @@ Los componentes nunca usan colores sueltos, solo los nombres de los tokens (`bg-
 
 ## Seguridad (resumen)
 
+**Autenticación**
+
+- Contraseñas con bcrypt (costo 12). Mensaje genérico en el login ("Correo o contraseña incorrectos").
+- Token de acceso JWT de 15 minutos, guardado **solo en memoria** en el navegador (nunca en localStorage).
+- Sesión de 7 días con un refresh token en cookie `httpOnly`, `SameSite=Lax` y `Secure` en producción. El token rota en cada uso; si se reutiliza uno viejo (posible robo), se cierran todas las sesiones de esa familia.
+- En la base de datos solo se guarda el HMAC del refresh token, nunca el token.
+- Cada petición protegida vuelve a leer la cuenta: si se le quita el rol de admin a alguien, pierde el acceso al instante.
+- Todo `/api/admin/*` exige sesión y rol `admin` en el backend. La protección de rutas en React es solo para la experiencia de usuario.
+
+**API**
+
 - `helmet`, CORS con lista blanca (`CLIENT_URL`), límite de 100 KB en el body y rate limit.
 - Rechazo de claves con `$` o `.` (inyección NoSQL) y `sanitizeFilter` de Mongoose.
 - Manejador central de errores que no expone stack traces en producción.
@@ -131,7 +169,18 @@ Los componentes nunca usan colores sueltos, solo los nombres de los tokens (`bg-
 
 ## Despliegue gratuito
 
+El proyecto está pensado para publicarse **sin ningún costo** mientras la marca lo evalúa. Todos los servicios se usan en su plan gratuito:
+
+| Servicio      | Uso                  | Plan gratuito                         |
+| ------------- | -------------------- | ------------------------------------- |
+| Vercel        | Tienda (frontend)    | Hobby                                 |
+| Render        | API (backend)        | Free web service                      |
+| MongoDB Atlas | Base de datos        | M0 (512 MB)                           |
+| Cloudinary    | Imágenes de producto | Free                                  |
+
 > Render gratis "duerme" el servidor tras ~15 minutos sin uso; la primera visita puede tardar de 30 a 50 segundos. La tienda muestra "Cargando la tienda…" mientras tanto.
+
+> Si la marca adopta la tienda para vender, conviene revisar los términos: el plan Hobby de Vercel es para uso no comercial, y un servidor que no se duerma mejora la experiencia. Ambos tienen planes de pago de bajo costo.
 
 La guía paso a paso (Vercel, Render, Atlas y Cloudinary) se completa en la Fase 8.
 
