@@ -294,6 +294,12 @@ describe('Categorías (admin)', () => {
     expect(list.body.categories.map((c) => c.slug)).toEqual(['palazzos', 'blusas', 'vestidos-de-fiesta']);
   });
 
+  it('renombrar una categoría oculta no la vuelve visible', async () => {
+    await auth(request(app).patch(`/api/admin/categories/${blusas.id}`)).send({ active: false });
+    const res = await auth(request(app).patch(`/api/admin/categories/${blusas.id}`)).send({ name: 'Blusas elegantes' });
+    expect(res.body.category).toMatchObject({ name: 'Blusas elegantes', active: false, slug: 'blusas' });
+  });
+
   it('reordena las categorías', async () => {
     const res = await auth(request(app).put('/api/admin/categories/reorder')).send({ ids: [blusas.id, palazzos.id] });
     expect(res.status).toBe(204);

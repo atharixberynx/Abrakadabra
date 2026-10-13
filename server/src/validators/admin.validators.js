@@ -77,13 +77,46 @@ export const imagesUpdateSchema = z.object({
     .max(MAX_IMAGES),
 });
 
+const categoryName = z.string().trim().min(2, 'Ingresa el nombre de la categoría').max(40);
+
 export const categoryCreateSchema = z.object({
-  name: z.string().trim().min(2, 'Ingresa el nombre de la categoría').max(40),
+  name: categoryName,
   active: z.boolean().default(true),
 });
 
-export const categoryUpdateSchema = categoryCreateSchema
+// Sin valores por defecto: en Zod 4, .partial() sobre un campo con .default() lo rellena,
+// y renombrar una categoría oculta la volvería visible sin querer.
+export const categoryUpdateSchema = z
+  .object({ name: categoryName, active: z.boolean() })
   .partial()
   .refine((data) => Object.keys(data).length > 0, 'No hay datos para actualizar');
 
 export const reorderSchema = z.object({ ids: z.array(objectId).min(1).max(100) });
+
+/** Enlace de un banner: ruta de la tienda ("/catalogo?nuevos=1") o enlace https. Vacío = sin enlace */
+const bannerLink = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((v) => v === '' || (v.startsWith('/') && !v.startsWith('//')) || /^https:\/\/[^\s]+$/.test(v), {
+    message: 'Usa una ruta de la tienda (p. ej. /catalogo) o un enlace que empiece con https://',
+  });
+
+// En multipart los valores llegan como texto: "true" / "false"
+const formBoolean = z.preprocess((v) => (v === 'true' ? true : v === 'false' ? false : v), z.boolean());
+
+const bannerAlt = z.string().trim().min(3, 'Describe brevemente el banner').max(120);
+
+export const bannerInputSchema = z.object({
+  alt: bannerAlt,
+  link: bannerLink.default('/catalogo'),
+  active: formBoolean.default(true),
+});
+
+// Sin valores por defecto (ver categoryUpdateSchema)
+export const bannerUpdateSchema = z
+  .object({ alt: bannerAlt, link: bannerLink, active: z.boolean() })
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, 'No hay datos para actualizar');
+
+export const bannerImageParamsSchema = z.object({ id: objectId, variant: z.enum(['desktop', 'mobile']) });
