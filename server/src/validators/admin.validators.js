@@ -130,3 +130,28 @@ export const bannerUpdateSchema = z
   .refine((data) => Object.keys(data).length > 0, 'No hay datos para actualizar');
 
 export const bannerImageParamsSchema = z.object({ id: objectId, variant: z.enum(['desktop', 'mobile']) });
+
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Usa una fecha válida');
+
+export const adminOrderListQuerySchema = z.object({
+  // "pendientes" = pagados + listos para retiro (lo que falta entregar)
+  estado: z.preprocess(
+    blankToUndefined,
+    z.enum(['pendientes', 'pagado', 'listo_para_retiro', 'entregado', 'cancelado', 'pago_rechazado']).optional(),
+  ),
+  desde: z.preprocess(blankToUndefined, isoDate.optional()),
+  hasta: z.preprocess(blankToUndefined, isoDate.optional()),
+  q: z.preprocess(blankToUndefined, z.string().trim().max(60).optional()),
+  page: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(500).default(1)),
+  limit: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(100).default(20)),
+});
+
+export const orderStatusSchema = z.object({
+  status: z.enum(['listo_para_retiro', 'entregado', 'cancelado']),
+});
+
+export const customerListQuerySchema = z.object({
+  q: z.preprocess(blankToUndefined, z.string().trim().max(60).optional()),
+  page: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(500).default(1)),
+  limit: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(100).default(20)),
+});
