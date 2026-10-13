@@ -106,16 +106,26 @@ const bannerLink = z
 const formBoolean = z.preprocess((v) => (v === 'true' ? true : v === 'false' ? false : v), z.boolean());
 
 const bannerAlt = z.string().trim().min(3, 'Describe brevemente el banner').max(120);
+const bannerText = {
+  title: z.string().trim().max(80, 'El título puede tener hasta 80 caracteres'),
+  subtitle: z.string().trim().max(140, 'El subtítulo puede tener hasta 140 caracteres'),
+  buttonText: z.string().trim().max(30, 'El botón puede tener hasta 30 caracteres'),
+  textTheme: z.enum(['light', 'dark']),
+};
 
 export const bannerInputSchema = z.object({
   alt: bannerAlt,
   link: bannerLink.default('/catalogo'),
   active: formBoolean.default(true),
+  title: bannerText.title.default(''),
+  subtitle: bannerText.subtitle.default(''),
+  buttonText: bannerText.buttonText.default(''),
+  textTheme: bannerText.textTheme.default('light'),
 });
 
 // Sin valores por defecto (ver categoryUpdateSchema)
 export const bannerUpdateSchema = z
-  .object({ alt: bannerAlt, link: bannerLink, active: z.boolean() })
+  .object({ alt: bannerAlt, link: bannerLink, active: z.boolean(), ...bannerText })
   .partial()
   .refine((data) => Object.keys(data).length > 0, 'No hay datos para actualizar');
 

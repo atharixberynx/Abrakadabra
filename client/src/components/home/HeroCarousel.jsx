@@ -1,7 +1,7 @@
 /**
  * Carrusel de banners de la página de inicio (se administran en Panel › Inicio).
- *  - Cada banner se muestra COMPLETO (sin recortar el texto que traiga la imagen). Si la
- *    imagen no llena el ancho, los lados se rellenan con la misma imagen difuminada.
+ *  - La imagen LLENA todo el carrusel: si su proporción no coincide, se recortan los bordes.
+ *  - Si el banner tiene título, subtítulo o botón, se escriben encima con las fuentes de la marca.
  *  - Cambia solo cada 6 s; se pausa al pasar el cursor, al enfocar, con el botón de pausa,
  *    en pestañas ocultas y si la persona prefiere menos movimiento.
  *  - En el celular se puede deslizar con el dedo.
@@ -44,6 +44,31 @@ function BannerPicture({ banner, className, eager }) {
         draggable={false}
       />
     </picture>
+  );
+}
+
+/** Texto opcional sobre la imagen (título, subtítulo y botón) */
+function BannerText({ banner }) {
+  const { title, subtitle, buttonText, textTheme } = banner;
+  if (!title && !subtitle && !buttonText) return null;
+  const dark = textTheme === 'dark';
+  return (
+    <>
+      {/* Degradado para que el texto claro se lea sobre cualquier foto */}
+      {!dark && <span className="absolute inset-0 bg-linear-to-r from-brand-dark/75 via-brand-dark/35 to-transparent" aria-hidden="true" />}
+      <div className="relative mx-auto flex h-full max-w-7xl items-center px-5 sm:px-10">
+        <div className={`max-w-[65%] md:max-w-xl ${dark ? 'text-brand-dark' : 'text-white'}`}>
+          {title && <h2 className="font-display text-xl leading-tight font-light sm:text-3xl md:text-4xl lg:text-5xl">{title}</h2>}
+          {subtitle && <p className={`mt-3 hidden text-base sm:block md:text-lg ${dark ? 'text-ink/85' : 'text-white/90'}`}>{subtitle}</p>}
+          {buttonText && (
+            // Es un <span>: todo el banner ya es el enlace
+            <span className={`mt-3 inline-flex h-9 items-center rounded-full px-4 text-xs font-medium sm:mt-6 sm:h-12 sm:px-8 sm:text-base ${dark ? 'bg-brand text-white' : 'bg-white text-brand'}`}>
+              {buttonText}
+            </span>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -130,12 +155,8 @@ export function HeroCarousel() {
             className={`absolute inset-0 transition-opacity duration-700 ${active ? 'opacity-100' : 'opacity-0'}`}
           >
             <SlideLink link={banner.link} label={banner.alt}>
-              {/* Fondo: la misma imagen ampliada y difuminada, para rellenar los lados */}
-              <BannerPicture banner={banner} className="absolute inset-0 size-full scale-125 object-cover blur-3xl" eager={i === 0} />
-              {/* Velo morado de la marca sobre el relleno, para que se vea como un fondo intencional */}
-              <span className="absolute inset-0 bg-brand-dark/55" aria-hidden="true" />
-              {/* Imagen completa, sin recortes */}
-              <BannerPicture banner={banner} className="relative mx-auto size-full object-contain" eager={i === 0} />
+              <BannerPicture banner={banner} className="absolute inset-0 size-full object-cover object-[center_40%]" eager={i === 0} />
+              <BannerText banner={banner} />
             </SlideLink>
           </div>
         );

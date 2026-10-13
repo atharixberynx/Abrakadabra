@@ -18,6 +18,10 @@ export async function listPublicBanners() {
     imageMobile: b.imageMobile?.url ?? null,
     alt: b.alt,
     link: b.link || null,
+    title: b.title || '',
+    subtitle: b.subtitle || '',
+    buttonText: b.buttonText || '',
+    textTheme: b.textTheme ?? 'light',
   }));
 }
 

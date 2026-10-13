@@ -69,11 +69,51 @@ function usePickedFile() {
   return [picked, set];
 }
 
+/** Texto opcional que se escribe sobre la imagen (para fotos que no traen texto) */
+function BannerTextFields({ values, onChange, onBlur }) {
+  const field = (name) => ({
+    value: values[name],
+    onChange: (e) => onChange(name, e.target.value),
+    onBlur,
+    onKeyDown: (e) => e.key === 'Enter' && onBlur && e.currentTarget.blur(),
+  });
+  return (
+    <fieldset className="rounded-xl border border-brand/15 p-4">
+      <legend className="px-1 text-sm font-medium text-ink">Texto sobre la imagen (opcional)</legend>
+      <p className="mb-3 text-xs text-ink/70">Déjalo vacío si la imagen ya trae su propio texto.</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-ink/85">Título</span>
+          <input maxLength={80} placeholder="Ej.: Nueva colección" className={inputClass} {...field('title')} />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-ink/85">Texto del botón</span>
+          <input maxLength={30} placeholder="Ej.: Ver catálogo" className={inputClass} {...field('buttonText')} />
+        </label>
+        <label className="block md:col-span-2">
+          <span className="mb-1 block text-xs font-medium text-ink/85">Subtítulo (no se muestra en celulares pequeños)</span>
+          <input maxLength={140} placeholder="Ej.: Palazzos de la S a la XL en varios colores" className={inputClass} {...field('subtitle')} />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-ink/85">Color del texto</span>
+          <select value={values.textTheme} onChange={(e) => onChange('textTheme', e.target.value, true)} className={inputClass}>
+            <option value="light">Claro (para fotos oscuras)</option>
+            <option value="dark">Morado oscuro (para fotos claras)</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+  );
+}
+
+const EMPTY_TEXT = { title: '', subtitle: '', buttonText: '', textTheme: 'light' };
+
 function NewBannerForm({ onCreated, disabled }) {
   const [desktop, setDesktop] = usePickedFile();
   const [mobile, setMobile] = usePickedFile();
   const [alt, setAlt] = useState('');
   const [link, setLink] = useState('/catalogo');
+  const [text, setText] = useState(EMPTY_TEXT);
   const [saving, setSaving] = useState(false);
 
   const submit = async (event) => {
@@ -87,6 +127,7 @@ function NewBannerForm({ onCreated, disabled }) {
     if (mobile) body.append('mobile', mobile.file);
     body.append('alt', alt.trim());
     body.append('link', link.trim());
+    for (const [key, value] of Object.entries(text)) body.append(key, value.trim());
     setSaving(true);
     try {
       await apiFetch('/admin/banners', { method: 'POST', body });
@@ -95,6 +136,7 @@ function NewBannerForm({ onCreated, disabled }) {
       setMobile(null);
       setAlt('');
       setLink('/catalogo');
+      setText(EMPTY_TEXT);
       onCreated();
     } catch (err) {
       toast.error(err.message);
@@ -142,6 +184,8 @@ function NewBannerForm({ onCreated, disabled }) {
           </label>
         </div>
 
+        <BannerTextFields values={text} onChange={(name, value) => setText((t) => ({ ...t, [name]: value }))} />
+
         <Button type="submit" disabled={saving || disabled}>
           <Plus className="size-4" /> {saving ? 'Subiendo…' : 'Agregar al carrusel'}
         </Button>
@@ -153,6 +197,12 @@ function NewBannerForm({ onCreated, disabled }) {
 function BannerRow({ banner, index, total, onChanged, onMove, uploadsEnabled }) {
   const [alt, setAlt] = useState(banner.alt);
   const [link, setLink] = useState(banner.link ?? '');
+  const [text, setText] = useState({
+    title: banner.title ?? '',
+    subtitle: banner.subtitle ?? '',
+    buttonText: banner.buttonText ?? '',
+    textTheme: banner.textTheme ?? 'light',
+  });
   const [busy, setBusy] = useState(false);
 
   const patch = async (body, message) => {
@@ -183,7 +233,15 @@ function BannerRow({ banner, index, total, onChanged, onMove, uploadsEnabled }) 
       }
       changes.link = link.trim();
     }
+    for (const key of ['title', 'subtitle', 'buttonText']) {
+      if (text[key].trim() !== (banner[key] ?? '')) changes[key] = text[key].trim();
+    }
     if (Object.keys(changes).length) patch(changes, 'Banner actualizado');
+  };
+
+  const changeText = (name, value, saveNow) => {
+    setText((t) => ({ ...t, [name]: value }));
+    if (saveNow) patch({ [name]: value }, 'Banner actualizado');
   };
 
   const replaceImage = async (variant, file) => {
@@ -288,6 +346,9 @@ function BannerRow({ banner, index, total, onChanged, onMove, uploadsEnabled }) 
           <input value={link} onChange={(e) => setLink(e.target.value)} onBlur={saveText} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} maxLength={300} list="banner-links" placeholder="Sin enlace" className={inputClass} />
         </label>
       </div>
+      <div className="mt-4">
+        <BannerTextFields values={text} onChange={changeText} onBlur={saveText} />
+      </div>
     </li>
   );
 }
@@ -336,8 +397,9 @@ export default function BannersPage() {
       <CloudinaryWarning />
 
       <div className="mb-6 rounded-xl bg-white px-4 py-3 text-sm text-ink/85 shadow-soft">
-        <strong className="text-brand-dark">Tamaños recomendados:</strong> computadora 1920 × 1080 px (o más ancho, como 1920 × 700);
-        celular 1080 × 1080 px. El banner se muestra completo, sin recortar el texto. JPG, PNG o WEBP de hasta 5 MB.
+        <strong className="text-brand-dark">Tamaños recomendados:</strong> computadora 1920 × 640 px (proporción 3:1); celular 1080 × 1080 px.
+        La imagen llena todo el carrusel: si tiene otra proporción, se recortan los bordes, así que deja lo importante cerca del
+        centro. JPG, PNG o WEBP de hasta 5 MB.
       </div>
 
       {loading && !data ? (
