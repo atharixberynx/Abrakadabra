@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { connectDB, disconnectDB } from './config/db.js';
 import { createApp } from './app.js';
+import { releaseStalePendingOrders } from './services/orderService.js';
 
 async function start() {
   try {
@@ -16,6 +17,12 @@ async function start() {
     );
     process.exit(1);
   }
+
+  // Pedidos que quedaron "pendientes de pago" (p. ej. por un reinicio a mitad de un cobro):
+  // se libera su stock al arrancar y luego cada 10 minutos.
+  const releasePending = () => releaseStalePendingOrders().catch((err) => logger.error({ err }, 'Error al liberar pedidos pendientes'));
+  releasePending();
+  setInterval(releasePending, 10 * 60 * 1000).unref();
 
   const app = createApp();
   const server = app.listen(env.PORT, () => {
