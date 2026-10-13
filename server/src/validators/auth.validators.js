@@ -45,6 +45,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().min(1).max(120),
   password: z.string().min(1).max(200),
+  remember: z.boolean().default(false), // "Recuérdame"
 });
 
 export const updateMeSchema = z

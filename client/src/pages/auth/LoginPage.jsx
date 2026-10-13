@@ -23,7 +23,10 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(loginSchema), defaultValues: { email: '', password: '' } });
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '', remember: false },
+  });
 
   // Si ya hay sesión, no tiene sentido mostrar el formulario
   if (status === 'authenticated' && !isSubmitting) {
@@ -60,6 +63,16 @@ export default function LoginPage() {
           error={errors.password?.message}
           {...register('password')}
         />
+
+        <label className="flex cursor-pointer items-start gap-3 text-sm text-ink">
+          <input type="checkbox" className="mt-0.5 size-5 shrink-0 rounded accent-brand" {...register('remember')} />
+          <span>
+            Recuérdame
+            <span className="block text-xs text-ink/70">
+              Mantén la sesión abierta 7 días en este dispositivo. No lo marques en computadoras compartidas.
+            </span>
+          </span>
+        </label>
 
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Ingresando…' : 'Iniciar sesión'}

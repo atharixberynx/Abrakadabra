@@ -9,6 +9,8 @@ import { env } from '../config/env.js';
 
 export const ACCESS_TOKEN_TTL = '15m';
 export const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Sin "Recuérdame": la cookie muere al cerrar el navegador y el token vence en 1 día como máximo
+export const SESSION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 export const REFRESH_COOKIE_NAME = 'abk_rt';
 
 const JWT_OPTIONS = { issuer: 'abrakadabra-api', audience: 'abrakadabra-web' };
@@ -35,13 +37,16 @@ export function hashRefreshToken(token) {
   return crypto.createHmac('sha256', env.JWT_REFRESH_SECRET).update(token).digest('hex');
 }
 
-/** Opciones de la cookie del refresh token */
-export function refreshCookieOptions() {
+/**
+ * Opciones de la cookie del refresh token.
+ * Con `persistent` false no lleva maxAge: es una cookie de sesión que el navegador borra al cerrarse.
+ */
+export function refreshCookieOptions(persistent = true) {
   return {
     httpOnly: true, // JavaScript no puede leerla (protege contra XSS)
     secure: env.isProduction, // solo por HTTPS en producción
     sameSite: 'lax', // no se envía en peticiones POST desde otros sitios (CSRF)
     path: '/api/auth', // solo viaja a las rutas de autenticación
-    maxAge: REFRESH_TOKEN_TTL_MS,
+    ...(persistent && { maxAge: REFRESH_TOKEN_TTL_MS }),
   };
 }

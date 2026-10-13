@@ -2,7 +2,7 @@
  * Sesión de la usuaria.
  *
  * Al cargar la página se intenta recuperar la sesión con el refresh token (cookie).
- * Para no hacer esa petición a cada visitante anónima, se guarda en localStorage
+ * Para no hacer esa petición a cada visitante anónima, se guarda en el navegador
  * una simple bandera "hay sesión" (nunca el token).
  *
  *   const { user, status, login, logout } = useAuth();
@@ -14,18 +14,21 @@ import { apiFetch, onSessionExpired, refreshSession, setAccessToken } from '../l
 const AuthContext = createContext(null);
 const SESSION_FLAG = 'abk_has_session';
 
+// Con "Recuérdame" la bandera va en localStorage (sobrevive al cerrar el navegador);
+// sin él, en sessionStorage (se borra junto con la cookie de sesión).
 function readFlag() {
   try {
-    return localStorage.getItem(SESSION_FLAG) === '1';
+    return localStorage.getItem(SESSION_FLAG) === '1' || sessionStorage.getItem(SESSION_FLAG) === '1';
   } catch {
     return true; // si no se puede leer, se intenta recuperar la sesión igual
   }
 }
 
-function writeFlag(hasSession) {
+function writeFlag(hasSession, persistent = true) {
   try {
-    if (hasSession) localStorage.setItem(SESSION_FLAG, '1');
-    else localStorage.removeItem(SESSION_FLAG);
+    localStorage.removeItem(SESSION_FLAG);
+    sessionStorage.removeItem(SESSION_FLAG);
+    if (hasSession) (persistent ? localStorage : sessionStorage).setItem(SESSION_FLAG, '1');
   } catch {
     // modo privado o almacenamiento bloqueado: no es crítico
   }
@@ -39,7 +42,7 @@ export function AuthProvider({ children }) {
     setAccessToken(data.accessToken);
     setUser(data.user);
     setStatus('authenticated');
-    writeFlag(true);
+    writeFlag(true, data.persistent !== false);
     return data.user;
   }, []);
 

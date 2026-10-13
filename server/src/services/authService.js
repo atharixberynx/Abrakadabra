@@ -10,6 +10,7 @@ import { RefreshToken } from '../models/RefreshToken.js';
 import { HttpError } from '../utils/httpError.js';
 import {
   REFRESH_TOKEN_TTL_MS,
+  SESSION_TOKEN_TTL_MS,
   generateRefreshToken,
   hashRefreshToken,
   signAccessToken,
@@ -51,16 +52,20 @@ export async function authenticate(email, password) {
   return user;
 }
 
-/** Crea un refresh token nuevo (en la familia indicada o en una nueva) y un token de acceso */
-export async function issueSession(user, family = crypto.randomUUID()) {
+/**
+ * Crea un refresh token nuevo (en la familia indicada o en una nueva) y un token de acceso.
+ * `persistent` ("Recuérdame"): true = sesión de 7 días; false = se cierra al cerrar el navegador.
+ */
+export async function issueSession(user, { family = crypto.randomUUID(), persistent = true } = {}) {
   const refreshToken = generateRefreshToken();
   await RefreshToken.create({
     user: user._id,
     tokenHash: hashRefreshToken(refreshToken),
     family,
-    expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+    persistent,
+    expiresAt: new Date(Date.now() + (persistent ? REFRESH_TOKEN_TTL_MS : SESSION_TOKEN_TTL_MS)),
   });
-  return { accessToken: signAccessToken(user), refreshToken };
+  return { accessToken: signAccessToken(user), refreshToken, persistent };
 }
 
 /**
@@ -81,9 +86,10 @@ export async function rotateSession(rawToken) {
 
   let family;
   let userId;
+  let persistent;
 
   if (claimed) {
-    family = claimed.family;
+    ({ family, persistent } = claimed);
     userId = claimed.user;
   } else {
     const existing = await RefreshToken.findOne({ tokenHash });
@@ -96,14 +102,15 @@ export async function rotateSession(rawToken) {
       await revokeFamily(existing.family);
       throw new HttpError(401, SESSION_EXPIRED);
     }
-    family = existing.family;
+    ({ family, persistent } = existing);
     userId = existing.user;
   }
 
   const user = await User.findById(userId);
   if (!user) throw new HttpError(401, SESSION_EXPIRED);
 
-  return { user, ...(await issueSession(user, family)) };
+  // La sesión renovada conserva la preferencia de "Recuérdame"
+  return { user, ...(await issueSession(user, { family, persistent })) };
 }
 
 /** Cierra definitivamente las sesiones que cumplan el filtro (por familia o por usuaria) */
@@ -120,6 +127,13 @@ export async function revokeSession(rawToken) {
   if (!rawToken) return;
   const token = await RefreshToken.findOne({ tokenHash: hashRefreshToken(rawToken) });
   if (token) await revokeFamily(token.family);
+}
+
+/** ¿La sesión actual tiene "Recuérdame"? (para mantenerlo al cambiar la contraseña) */
+export async function isPersistentSession(rawToken) {
+  if (!rawToken) return true;
+  const token = await RefreshToken.findOne({ tokenHash: hashRefreshToken(rawToken) }).select('persistent').lean();
+  return token?.persistent ?? true;
 }
 
 /** Cierra todas las sesiones de una persona (p. ej. al cambiar la contraseña) */

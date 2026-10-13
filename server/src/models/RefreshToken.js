@@ -15,6 +15,8 @@ const refreshTokenSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     tokenHash: { type: String, required: true, unique: true },
     family: { type: String, required: true, index: true },
+    // "Recuérdame": true = cookie de 7 días; false = cookie de sesión (se borra al cerrar el navegador)
+    persistent: { type: Boolean, default: true },
     expiresAt: { type: Date, required: true },
     // Cuándo dejó de servir este token (por rotación o por cierre de sesión)
     revokedAt: { type: Date, default: null },

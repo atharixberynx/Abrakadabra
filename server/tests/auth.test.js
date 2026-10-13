@@ -107,6 +107,36 @@ describe('Inicio de sesión', () => {
     expect(unknownEmail.body.error.message).toBe(wrongPassword.body.error.message);
   });
 
+  it('"Recuérdame" marcado: cookie de 7 días; sin marcar: cookie de sesión (sin Max-Age)', async () => {
+    await registerCustomer(app);
+    const remembered = await request(app)
+      .post('/api/auth/login')
+      .send({ email: validCustomer.email, password: validCustomer.password, remember: true });
+    const sessionOnly = await request(app)
+      .post('/api/auth/login')
+      .send({ email: validCustomer.email, password: validCustomer.password });
+
+    expect(remembered.headers['set-cookie'].join(';')).toMatch(/Max-Age=604800/);
+    expect(sessionOnly.headers['set-cookie'].join(';')).not.toMatch(/Max-Age|Expires/i);
+    expect(remembered.body.persistent).toBe(true);
+    expect(sessionOnly.body.persistent).toBe(false);
+  });
+
+  it('la sesión renovada conserva la preferencia de "Recuérdame"', async () => {
+    await registerCustomer(app);
+    const login = await request(app)
+      .post('/api/auth/login')
+      .send({ email: validCustomer.email, password: validCustomer.password, remember: false });
+    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', getRefreshCookie(login));
+    expect(refreshed.status).toBe(200);
+    expect(refreshed.headers['set-cookie'].join(';')).not.toMatch(/Max-Age|Expires/i);
+
+    const stored = await RefreshToken.find().sort({ createdAt: 1 });
+    expect(stored.every((t) => t.persistent === false || t.persistent === true)).toBe(true);
+    const sessionTtl = stored.at(-1).expiresAt - stored.at(-1).createdAt;
+    expect(sessionTtl).toBeLessThanOrEqual(24 * 60 * 60 * 1000 + 1000);
+  });
+
   it('bloquea la inyección NoSQL en el login', async () => {
     await registerCustomer(app);
     const res = await request(app)

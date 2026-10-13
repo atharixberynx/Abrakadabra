@@ -33,6 +33,7 @@ const password = z
 export const loginSchema = z.object({
   email,
   password: z.string().min(1, 'Ingresa tu contraseña'),
+  remember: z.boolean(),
 });
 
 export const registerSchema = z.object({ name, email, phone, password });

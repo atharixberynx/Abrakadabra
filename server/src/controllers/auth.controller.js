@@ -2,9 +2,9 @@ import * as authService from '../services/authService.js';
 import { REFRESH_COOKIE_NAME, refreshCookieOptions } from '../utils/tokens.js';
 
 /** Guarda el refresh token en la cookie y responde con la usuaria y el token de acceso */
-function sendSession(res, status, { user, accessToken, refreshToken }) {
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions());
-  res.status(status).json({ user, accessToken });
+function sendSession(res, status, { user, accessToken, refreshToken, persistent = true }) {
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions(persistent));
+  res.status(status).json({ user, accessToken, persistent });
 }
 
 function clearSessionCookie(res) {
@@ -21,7 +21,7 @@ export async function register(req, res) {
 
 export async function login(req, res) {
   const user = await authService.authenticate(req.body.email, req.body.password);
-  const session = await authService.issueSession(user);
+  const session = await authService.issueSession(user, { persistent: req.body.remember });
   sendSession(res, 200, { user, ...session });
 }
 
