@@ -85,6 +85,7 @@ En desarrollo, Vite reenvía `/api` al backend (`localhost:4000`), así el naveg
 | raíz      | `npm run lint`           | Revisa el código de server y client                             |
 | `server/` | `npm run seed:admin`     | Crea la primera cuenta de administración (ver abajo)            |
 | `server/` | `npm run seed:catalog`   | Carga el catálogo de ejemplo (⚠️ borra categorías y productos)  |
+| `server/` | `npm run seed:banners`   | Crea el banner oficial de la marca en el carrusel (si no hay)   |
 | `client/` | `npm run brand:assets`   | Regenera logos optimizados, favicon e imagen Open Graph         |
 | `client/` | `npm run check:contrast` | Verifica contraste WCAG AA de la paleta                         |
 
@@ -123,6 +124,9 @@ Credenciales de **demostración** (solo de ejemplo, cámbialas antes de publicar
 
 Al iniciar sesión, el equipo de la tienda entra al panel en `/admin`.
 
+- Cualquier visitante puede ver el catálogo y armar su carrito **sin cuenta**; para **pagar** debe iniciar sesión o registrarse, y vuelve al checkout con su carrito intacto.
+- **Recuérdame**: si se marca al iniciar sesión, la sesión dura 7 días en ese dispositivo; si no, se cierra al cerrar el navegador.
+
 ## Panel administrativo
 
 Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin" del header).
@@ -130,6 +134,7 @@ Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin"
 | Sección     | Qué se puede hacer                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------- |
 | Productos   | Buscar y filtrar (categoría, visibles/ocultos, poco stock, agotados), mostrar u ocultar, editar y eliminar |
+| Inicio      | Banners del carrusel de la página de inicio: agregar (computadora y celular), ordenar, ocultar o quitar  |
 | Categorías  | Crear, renombrar, ordenar (flechas o arrastrando), mostrar u ocultar e imagen del mosaico de inicio      |
 
 **Crear o editar un producto**
@@ -152,7 +157,11 @@ Las fotos se guardan en Cloudinary, en su **plan gratuito** (no pide tarjeta).
    CLOUDINARY_API_KEY=123456789012345
    CLOUDINARY_API_SECRET=el-secreto
    ```
-4. Reinicia `npm run dev`. El aviso amarillo del panel desaparece y ya puedes subir fotos.
+4. Guarda el archivo: `npm run dev` se reinicia solo al detectar el cambio en `.env`. El aviso amarillo del panel desaparece y ya puedes subir fotos.
+
+**Si la subida falla con "le faltan permisos" (error 403):** la API Key fue creada con permisos limitados. En Cloudinary, ve a *Settings › API Keys* y usa la clave principal de la cuenta (la que se creó con ella), o edita la clave para que tenga permiso de subir archivos. Si cambias de clave, actualiza `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET`.
+
+> Nunca compartas el **API Secret** en capturas o mensajes. Si se llegó a ver, genera una clave nueva en Cloudinary y desactiva la anterior.
 
 Las fotos se suben desde el backend (el navegador nunca ve las credenciales), se guardan como máximo a 2000 px y la tienda las pide optimizadas (`f_auto,q_auto` y el ancho justo para cada pantalla). Solo se aceptan JPG, PNG o WEBP de hasta 5 MB, y se revisa el tipo real del archivo, no solo la extensión.
 
