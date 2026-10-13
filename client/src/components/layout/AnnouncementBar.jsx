@@ -22,7 +22,7 @@ export function AnnouncementBar({ className = 'bg-brand' }) {
 
   return (
     <div
-      className={`${className} px-4 py-2 text-center text-xs tracking-wider text-white sm:text-sm`}
+      className={`${className} px-4 py-2 text-center text-xs tracking-wider text-white sm:py-2.5 sm:text-sm`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

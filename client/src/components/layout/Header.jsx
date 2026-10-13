@@ -102,13 +102,13 @@ export function Header() {
   const dark = isAdmin;
   const iconButton = `grid size-11 place-items-center rounded-full transition ${dark ? 'text-white hover:bg-white/10' : 'text-brand hover:bg-lavender'}`;
   const navLinkClass = (target) =>
-    `relative py-3 text-sm tracking-wide transition after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:bg-gold after:transition-transform ${
+    `relative block py-4 text-[15px] tracking-wide transition after:absolute after:inset-x-0 after:bottom-2.5 after:h-0.5 after:origin-left after:bg-gold after:transition-transform ${
       isActive(target) ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
     } ${dark ? 'text-white' : 'text-ink hover:text-brand'}`;
 
   return (
     <header className={`sticky top-0 z-40 ${dark ? 'bg-brand' : 'border-b border-lavender bg-white/95 backdrop-blur'}`}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 md:h-20 md:gap-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 md:h-24 md:gap-6">
         <button type="button" className={`${iconButton} -ml-2 md:hidden`} onClick={() => setDrawerOpen(true)} aria-label="Abrir menú">
           <Menu className="size-6" />
         </button>
