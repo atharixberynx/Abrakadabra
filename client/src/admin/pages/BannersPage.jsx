@@ -4,7 +4,8 @@
  * mostrar u ocultar, ordenar, cambiar imágenes y eliminar.
  */
 import { useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ExternalLink, ImagePlus, Monitor, Plus, Smartphone, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowDown, ArrowUp, ExternalLink, ImagePlus, Monitor, Plus, Smartphone, Store, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Switch } from '../../components/ui/Switch.jsx';
 import { clearFetchCache, useFetch } from '../../hooks/useFetch.js';
@@ -271,7 +272,14 @@ function BannerRow({ banner, index, total, onChanged, onMove, uploadsEnabled }) 
         <label className="block">
           <span className="mb-1.5 flex items-center justify-between text-sm font-medium text-ink">
             Al tocarlo, lleva a…
-            {banner.link && (
+            {banner.link?.startsWith('/') && (
+              // Página de la tienda: misma pestaña
+              <Link to={banner.link} className="inline-flex items-center gap-1 text-xs font-normal text-brand hover:underline">
+                Probar
+              </Link>
+            )}
+            {banner.link?.startsWith('https://') && (
+              // Sitio externo (p. ej. Instagram): pestaña nueva, para no salir del panel
               <a href={banner.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-normal text-brand hover:underline">
                 Probar <ExternalLink className="size-3" />
               </a>
@@ -320,8 +328,8 @@ export default function BannersPage() {
         title="Página de inicio"
         description="Banners del carrusel principal. Se muestran en este orden y cambian solos cada 6 segundos."
         actions={
-          <Button as="a" href="/" target="_blank" rel="noopener noreferrer" variant="secondary">
-            <ExternalLink className="size-4" /> Ver la tienda
+          <Button as={Link} to="/" variant="secondary">
+            <Store className="size-4" /> Ver la tienda
           </Button>
         }
       />

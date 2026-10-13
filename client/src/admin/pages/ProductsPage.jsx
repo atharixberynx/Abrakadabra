@@ -212,9 +212,9 @@ export default function ProductsPage() {
                         <Link to={`/admin/productos/${p.id}`} className="grid size-9 place-items-center rounded-full text-brand hover:bg-lavender" aria-label={`Editar ${p.name}`} title="Editar">
                           <Pencil className="size-4" />
                         </Link>
-                        <a href={`/producto/${p.slug}`} target="_blank" rel="noopener noreferrer" className="grid size-9 place-items-center rounded-full text-brand hover:bg-lavender" aria-label={`Ver ${p.name} en la tienda`} title="Ver en la tienda">
+                        <Link to={`/producto/${p.slug}`} className="grid size-9 place-items-center rounded-full text-brand hover:bg-lavender" aria-label={`Ver ${p.name} en la tienda`} title="Ver en la tienda">
                           <Eye className="size-4" />
-                        </a>
+                        </Link>
                         <button type="button" onClick={() => remove(p)} className="grid size-9 place-items-center rounded-full text-danger hover:bg-danger-soft" aria-label={`Eliminar ${p.name}`} title="Eliminar">
                           <Trash2 className="size-4" />
                         </button>

@@ -347,9 +347,9 @@ function ProductEditor({ product, categories, uploadsEnabled }) {
             </dl>
             <div className="mt-5 hidden lg:block">{saveButton}</div>
             {savedSlug && (
-              <a href={`/producto/${savedSlug}`} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center justify-center gap-1.5 text-sm text-brand hover:underline">
+              <Link to={`/producto/${savedSlug}`} className="mt-3 flex items-center justify-center gap-1.5 text-sm text-brand hover:underline">
                 <Eye className="size-4" /> Ver en la tienda
-              </a>
+              </Link>
             )}
           </Card>
         </aside>

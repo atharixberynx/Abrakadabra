@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ExternalLink, LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, Store, X } from 'lucide-react';
 import { store } from '../config/store.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Portal } from '../components/ui/Portal.jsx';
@@ -45,7 +45,7 @@ function SidebarFooter({ onNavigate }) {
   return (
     <div className="space-y-1 border-t border-white/15 pt-4">
       <Link to="/" onClick={onNavigate} className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-white/90 hover:bg-white/10">
-        <ExternalLink className="size-5" aria-hidden="true" /> Ver la tienda
+        <Store className="size-5" aria-hidden="true" /> Ver la tienda
       </Link>
       <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-white/90 hover:bg-white/10">
         <LogOut className="size-5" aria-hidden="true" /> Cerrar sesión
