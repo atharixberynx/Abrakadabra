@@ -51,17 +51,7 @@ function ApiStatus() {
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh">
-      <div className="bg-brand px-4 py-2 text-center text-xs tracking-wider text-white sm:text-sm">
-        {store.announcements[0]} <span aria-hidden="true">·</span> {store.announcements[1]}
-      </div>
-
-      <header className="border-b border-lavender">
-        <div className="mx-auto flex h-20 max-w-6xl items-center px-4">
-          <img src={store.logos.onWhite} alt={store.name} className="h-14 w-auto" />
-        </div>
-      </header>
-
+    <>
       <main>
         <section className="bg-lavender px-4 py-16 text-center sm:py-24">
           <StarIcon className="mx-auto mb-4 size-6 text-gold" />
@@ -126,11 +116,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-
-      <footer className="bg-brand px-4 py-10 text-center text-white">
-        <img src={store.logos.onPurple} alt={store.name} className="mx-auto h-24 w-auto" />
-        <p className="mt-4 text-sm text-white/85">{store.fullAddress}</p>
-      </footer>
-    </div>
+    </>
   );
 }

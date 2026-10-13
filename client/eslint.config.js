@@ -21,6 +21,11 @@ export default [
     },
   },
   {
+    // El archivo de rutas define componentes lazy y exporta el router: no aplica fast refresh
+    files: ['src/router.jsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+  {
     // Scripts de Node (generación de recursos, verificación de contraste)
     files: ['scripts/**/*.mjs', 'vite.config.js'],
     languageOptions: { globals: { ...globals.node } },
