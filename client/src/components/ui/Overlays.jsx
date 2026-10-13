@@ -1,5 +1,5 @@
 /**
- * Capas globales: avisos emergentes (abajo) y diálogo de confirmación.
+ * Capas globales: avisos emergentes (arriba, centrados) y diálogo de confirmación.
  * Se montan una sola vez en main.jsx y se controlan con toast() y confirmDialog().
  */
 import { useEffect, useRef } from 'react';
@@ -14,7 +14,7 @@ export function Toaster() {
 
   return (
     <Portal>
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[70] flex flex-col items-center gap-2 px-4" aria-live="polite">
+      <div className="pointer-events-none fixed inset-x-0 top-4 z-[70] flex flex-col items-center gap-2 px-4" aria-live="polite">
         {toasts.map((t) => (
           <div
             key={t.id}
