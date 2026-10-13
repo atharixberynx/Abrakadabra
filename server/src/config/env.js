@@ -29,6 +29,10 @@ const envSchema = z.object({
 
   PAYMENT_PROVIDER: z.enum(['simulated', 'wompi']).default('simulated'),
 
+  // Solo los usa el script `npm run seed:admin` (se validan ahí)
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_PASSWORD: z.string().optional(),
+
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
 });
 

@@ -5,6 +5,12 @@ import { logger } from './logger.js';
 mongoose.set('strictQuery', true);
 // Envuelve en $eq cualquier objeto con operadores ($gt, $ne…) que llegue en un filtro.
 // Es una segunda capa contra inyección NoSQL (la primera es el middleware sanitizeRequest).
+//
+// Consecuencias al escribir consultas:
+//  - Los operadores que pone el código a propósito deben marcarse como confiables:
+//      Product.find({ price: mongoose.trusted({ $gte: 5, $lte: 20 }) })
+//  - $and / $or / $nor sí se permiten en el primer nivel.
+//  - $text, $where y $expr están prohibidos (la búsqueda usa regex escapada).
 mongoose.set('sanitizeFilter', true);
 
 export async function connectDB(uri) {
@@ -16,6 +22,8 @@ export async function connectDB(uri) {
 }
 
 export async function disconnectDB() {
+  // Desconexión intencional: no mostrar la advertencia de "desconectado"
+  mongoose.connection.removeAllListeners('disconnected');
   await mongoose.disconnect();
 }
 

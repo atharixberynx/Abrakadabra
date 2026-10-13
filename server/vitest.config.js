@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.js'],
+    // La primera vez se descarga MongoDB para la base de datos en memoria
+    hookTimeout: 180_000,
+    testTimeout: 20_000,
     // Valores ficticios solo para pruebas: nunca se conectan a Atlas
     env: {
       NODE_ENV: 'test',

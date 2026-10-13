@@ -12,7 +12,8 @@ export default [
     },
     rules: {
       // Permite parámetros que empiezan con "_" (p. ej. `next` obligatorio en el manejador de errores)
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // `ignoreRestSiblings`: permite quitar campos con { campo, ...resto }
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
     },
   },
 ];
