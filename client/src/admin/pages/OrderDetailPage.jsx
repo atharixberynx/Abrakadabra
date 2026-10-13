@@ -148,11 +148,19 @@ export default function OrderDetailPage() {
                 </li>
               )}
             </ul>
-            {whatsapp && ['pagado', 'listo_para_retiro'].includes(order.status) && (
-              <Button as="a" href={whatsapp} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm" className="mt-4 w-full">
-                <MessageCircle className="size-4" /> Avisar por WhatsApp
-              </Button>
-            )}
+            {['pagado', 'listo_para_retiro'].includes(order.status) &&
+              (whatsapp ? (
+                <Button as="a" href={whatsapp} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm" className="mt-4 w-full">
+                  <MessageCircle className="size-4" /> Avisar por WhatsApp
+                </Button>
+              ) : (
+                <div className="mt-4">
+                  <Button variant="secondary" size="sm" className="w-full" disabled>
+                    <MessageCircle className="size-4" /> Avisar por WhatsApp
+                  </Button>
+                  <p className="mt-1.5 text-xs text-ink/70">Esta cuenta no tiene un teléfono de 8 dígitos registrado. Escríbele por correo.</p>
+                </div>
+              ))}
           </Card>
 
           <Card title="Pago">

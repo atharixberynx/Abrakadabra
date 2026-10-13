@@ -2,7 +2,7 @@
  * Panel › Clientas (solo lectura): lista con búsqueda y detalle con sus pedidos.
  */
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { useFetch } from '../../hooks/useFetch.js';
@@ -16,6 +16,7 @@ const dateOnly = new Intl.DateTimeFormat('es-SV', { dateStyle: 'medium' });
 
 export function CustomersPage() {
   usePageTitle('Clientas · Panel');
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get('q') ?? '');
   const query = new URLSearchParams();
@@ -74,7 +75,7 @@ export function CustomersPage() {
               </thead>
               <tbody className="divide-y divide-lavender">
                 {data.items.map((c) => (
-                  <tr key={c.id} className="hover:bg-lavender/30">
+                  <tr key={c.id} onClick={() => navigate(`/admin/clientas/${c.id}`)} className="cursor-pointer hover:bg-lavender/40">
                     <td className="px-4 py-3">
                       <Link to={`/admin/clientas/${c.id}`} className="font-medium text-brand hover:text-brand-dark">{c.name}</Link>
                       <p className="text-xs text-ink/70">{c.email}</p>
@@ -103,6 +104,7 @@ export function CustomersPage() {
 
 export function CustomerDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data, loading, error, reload } = useFetch(`/admin/customers/${id}`, { cache: false });
   usePageTitle(data ? `${data.customer.name} · Clientas` : 'Clienta · Panel');
 
@@ -110,39 +112,86 @@ export function CustomerDetailPage() {
   if (error) return <ErrorState error={error} onRetry={reload} />;
 
   const { customer, orders } = data;
-  const spent = orders.filter((o) => o.status !== 'cancelado').reduce((sum, o) => sum + o.total, 0);
+  const bought = orders.filter((o) => o.status !== 'cancelado');
+  const spent = bought.reduce((sum, o) => sum + o.total, 0);
+  const byStatus = orders.reduce((acc, o) => ({ ...acc, [o.status]: (acc[o.status] ?? 0) + 1 }), {});
+  const first = orders.at(-1);
+  const last = orders[0];
 
   return (
     <>
       <Link to="/admin/clientas" className="mb-3 inline-flex items-center gap-1 text-sm text-brand hover:text-brand-dark">
         <ArrowLeft className="size-4" /> Clientas
       </Link>
-      <PageHeader title={customer.name} description={`Registrada el ${formatDate(customer.createdAt)}`} />
+      <PageHeader title={customer.name} description={`Clienta desde el ${formatDate(customer.createdAt)}`} />
+
+      <section aria-label="Resumen de la clienta" className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-card bg-white p-5 shadow-soft">
+          <p className="text-sm text-ink/80">Pedidos</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums text-ink">{orders.length}</p>
+          <p className="mt-1 text-xs text-ink/70">{byStatus.cancelado ? `${byStatus.cancelado} cancelado${byStatus.cancelado > 1 ? 's' : ''}` : 'Ninguno cancelado'}</p>
+        </div>
+        <div className="rounded-card bg-white p-5 shadow-soft">
+          <p className="text-sm text-ink/80">Total comprado</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums text-ink">{formatPrice(spent)}</p>
+          <p className="mt-1 text-xs text-ink/70">Sin contar cancelados</p>
+        </div>
+        <div className="rounded-card bg-white p-5 shadow-soft">
+          <p className="text-sm text-ink/80">Compra promedio</p>
+          <p className="mt-2 text-3xl font-semibold tabular-nums text-ink">{formatPrice(bought.length ? spent / bought.length : 0)}</p>
+          <p className="mt-1 text-xs text-ink/70">Por pedido</p>
+        </div>
+        <div className="rounded-card bg-white p-5 shadow-soft">
+          <p className="text-sm text-ink/80">Último pedido</p>
+          <p className="mt-2 text-lg font-semibold text-ink">{last ? formatShortDate(last.createdAt) : '—'}</p>
+          <p className="mt-1 text-xs text-ink/70">{first ? `Primero: ${formatShortDate(first.createdAt)}` : 'Todavía no compra'}</p>
+        </div>
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
         <Card title="Datos de contacto">
-          <dl className="space-y-2 text-sm">
-            <div><dt className="text-ink/70">Correo</dt><dd className="break-all text-ink">{customer.email}</dd></div>
+          <dl className="space-y-3 text-sm">
+            <div><dt className="text-ink/70">Correo</dt><dd><a href={`mailto:${customer.email}`} className="break-all text-brand hover:underline">{customer.email}</a></dd></div>
             <div><dt className="text-ink/70">Teléfono</dt><dd className="text-ink">{customer.phone || '—'}</dd></div>
-            <div><dt className="text-ink/70">Total comprado</dt><dd className="font-semibold tabular-nums text-ink">{formatPrice(spent)}</dd></div>
+            <div>
+              <dt className="mb-1 text-ink/70">Pedidos por estado</dt>
+              <dd className="flex flex-wrap gap-1.5">
+                {Object.keys(byStatus).length === 0 ? '—' : Object.entries(byStatus).map(([status, count]) => (
+                  <span key={status} className="inline-flex items-center gap-1"><AdminStatusBadge status={status} /><span className="text-xs text-ink/80">×{count}</span></span>
+                ))}
+              </dd>
+            </div>
           </dl>
         </Card>
-        <Card title={`Pedidos (${orders.length})`}>
+
+        <Card title="Pedidos">
           {orders.length === 0 ? (
             <p className="py-4 text-center text-sm text-ink/80">Todavía no ha hecho pedidos.</p>
           ) : (
-            <ul className="divide-y divide-lavender">
-              {orders.map((o) => (
-                <li key={o.id}>
-                  <Link to={`/admin/pedidos/${o.id}`} className="flex items-center justify-between gap-3 py-3 hover:bg-lavender/40 sm:px-2">
-                    <div>
-                      <p className="font-semibold text-brand">{o.orderNumber}</p>
-                      <p className="text-xs text-ink/70">{formatShortDate(o.createdAt)} · {o.pieces} {o.pieces === 1 ? 'prenda' : 'prendas'} · {formatPrice(o.total)}</p>
-                    </div>
-                    <AdminStatusBadge status={o.status} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[480px] text-left text-sm">
+                <thead className="border-b border-lavender text-xs uppercase tracking-wider text-ink/80">
+                  <tr>
+                    <th className="py-2 pr-3 font-semibold">Pedido</th>
+                    <th className="py-2 pr-3 font-semibold">Fecha</th>
+                    <th className="py-2 pr-3 text-right font-semibold">Prendas</th>
+                    <th className="py-2 pr-3 text-right font-semibold">Total</th>
+                    <th className="py-2 font-semibold">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-lavender">
+                  {orders.map((o) => (
+                    <tr key={o.id} onClick={() => navigate(`/admin/pedidos/${o.id}`)} className="cursor-pointer hover:bg-lavender/40">
+                      <td className="py-3 pr-3"><Link to={`/admin/pedidos/${o.id}`} className="font-semibold text-brand hover:text-brand-dark">{o.orderNumber}</Link></td>
+                      <td className="py-3 pr-3 text-ink/85">{formatShortDate(o.createdAt)}</td>
+                      <td className="py-3 pr-3 text-right tabular-nums">{o.pieces}</td>
+                      <td className="py-3 pr-3 text-right font-semibold tabular-nums">{formatPrice(o.total)}</td>
+                      <td className="py-3"><AdminStatusBadge status={o.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </Card>
       </div>

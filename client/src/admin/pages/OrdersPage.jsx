@@ -3,7 +3,7 @@
  * Los filtros viven en la URL para poder volver atrás sin perderlos.
  */
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { useFetch } from '../../hooks/useFetch.js';
@@ -27,6 +27,7 @@ const fieldClass = 'h-11 rounded-xl border border-brand/20 bg-white px-3 text-sm
 
 export default function OrdersPage() {
   usePageTitle('Pedidos · Panel');
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get('q') ?? '');
 
@@ -122,7 +123,8 @@ export default function OrdersPage() {
               </thead>
               <tbody className="divide-y divide-lavender">
                 {items.map((o) => (
-                  <tr key={o.id} className="hover:bg-lavender/30">
+                  // Toda la fila abre el detalle (el número sigue siendo un enlace para teclado y lectores)
+                  <tr key={o.id} onClick={() => navigate(`/admin/pedidos/${o.id}`)} className="cursor-pointer hover:bg-lavender/40">
                     <td className="px-4 py-3">
                       <Link to={`/admin/pedidos/${o.id}`} className="font-semibold text-brand hover:text-brand-dark">{o.orderNumber}</Link>
                     </td>

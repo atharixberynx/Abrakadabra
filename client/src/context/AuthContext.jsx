@@ -37,11 +37,14 @@ function writeFlag(hasSession, persistent = true) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState(() => (readFlag() ? 'loading' : 'anonymous'));
+  // true si la persona cerró sesión a propósito (no si la sesión expiró sola)
+  const [justLoggedOut, setJustLoggedOut] = useState(false);
 
   const startSession = useCallback((data) => {
     setAccessToken(data.accessToken);
     setUser(data.user);
     setStatus('authenticated');
+    setJustLoggedOut(false);
     writeFlag(true, data.persistent !== false);
     return data.user;
   }, []);
@@ -82,6 +85,7 @@ export function AuthProvider({ children }) {
     try {
       await apiFetch('/auth/logout', { method: 'POST' });
     } finally {
+      setJustLoggedOut(true);
       endSession();
     }
   }, [endSession]);
@@ -91,13 +95,14 @@ export function AuthProvider({ children }) {
       user,
       status,
       isAdmin: user?.role === 'admin',
+      justLoggedOut,
       login,
       register,
       logout,
       startSession,
       setUser,
     }),
-    [user, status, login, register, logout, startSession],
+    [user, status, justLoggedOut, login, register, logout, startSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

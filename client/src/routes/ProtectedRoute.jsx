@@ -11,13 +11,15 @@ import { Button } from '../components/ui/Button.jsx';
 import { StoreLoader } from '../components/ui/StoreLoader.jsx';
 
 export function ProtectedRoute({ role, children }) {
-  const { status, user } = useAuth();
+  const { status, user, justLoggedOut } = useAuth();
   const location = useLocation();
 
   if (status === 'loading') return <StoreLoader message="Cargando tu cuenta…" className="min-h-[60dvh]" />;
 
   if (status === 'anonymous') {
-    // Se recuerda la página para regresar después de iniciar sesión
+    // Cerró sesión a propósito: a inicio, sin "recordar" esta página para el próximo inicio de sesión
+    if (justLoggedOut) return <Navigate to="/" replace />;
+    // Sesión expirada o sin sesión: se recuerda la página para regresar después de iniciar sesión
     return <Navigate to="/iniciar-sesion" replace state={{ from: location }} />;
   }
 
