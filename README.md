@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 4 de 8 (panel admin de productos). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 5 de 8 (carrito, checkout y pago simulado). Este README se completa en cada fase.
 
 ---
 
@@ -102,6 +102,38 @@ npm run seed:catalog
 - Incluye un producto agotado, uno con poco stock, combinaciones color + talla que no se ofrecen y ofertas con precio anterior.
 - Las imágenes son siluetas lavanda (sin fotos de modelos generadas con IA), una por color, para que se vea cómo cambia la foto al elegir un color. Se guardan en `client/public/placeholders/`.
 - Solo borra categorías y productos (no toca cuentas ni pedidos). En producción pide confirmar con `npm run seed:catalog -- --yes`.
+
+## Compra en línea y pago de prueba
+
+1. La clienta arma su carrito **sin cuenta** (se guarda en el navegador).
+2. El carrito se revisa con el servidor al abrirlo: precios actuales, existencias y productos que ya no están disponibles (avisa si algo cambió y ajusta cantidades).
+3. Para **pagar** debe iniciar sesión o registrarse; luego vuelve al checkout con el carrito intacto.
+4. Entrega única: **retiro en tienda** (sin costo de envío).
+5. Pago con tarjeta en **modo de prueba**: no se realiza ningún cargo real.
+6. Confirmación con el número de pedido (`ABK-000123`) y las indicaciones para retirar en la sucursal. El pedido aparece en **Mi cuenta › Mis pedidos**.
+
+### Tarjetas de prueba
+
+| Número                | Resultado                 |
+| --------------------- | ------------------------- |
+| `4242 4242 4242 4242` | Pago aprobado             |
+| `4000 0000 0000 0002` | Tarjeta rechazada         |
+| `4000 0000 0000 9995` | Fondos insuficientes      |
+| Cualquier otra Visa o Mastercard válida | Pago aprobado |
+
+Usa cualquier nombre, una fecha futura (MM/AA) y cualquier CVV de 3 dígitos. El checkout tiene un botón **"Usar tarjeta de prueba"** que llena los datos.
+
+### Cómo se protege la compra
+
+- El total lo calcula **siempre el servidor** con los precios de la base de datos.
+- El stock se descuenta dentro de una **transacción** con una condición `stock >= cantidad`: dos compras simultáneas de la última unidad no pueden completarse ambas.
+- Si el pago se rechaza, el stock se devuelve y el intento no aparece en "Mis pedidos".
+- Del pago solo se guarda la marca, los **últimos 4 dígitos** y el id de transacción. El número completo y el CVV **nunca** se guardan ni se registran en los logs.
+- La misma compra enviada dos veces (doble clic, reintento de red) no genera dos pedidos.
+
+### Pasar a Wompi El Salvador
+
+El pago funciona con un adaptador (`server/src/services/payments/`). Hoy usa `PAYMENT_PROVIDER=simulated`. El archivo `wompiProvider.js` tiene los pasos (TODO) para integrar **Wompi El Salvador** (<https://docs.wompi.sv>, no confundir con Wompi Colombia).
 
 ## Cuentas y administración
 
