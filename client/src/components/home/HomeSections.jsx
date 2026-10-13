@@ -10,35 +10,6 @@ import { Button } from '../ui/Button.jsx';
 import { StarDivider, StarIcon } from '../ui/StarIcon.jsx';
 import { SectionHeader } from '../product/ProductSection.jsx';
 
-/** Banner principal con imagen distinta para celular y escritorio */
-export function Hero() {
-  const { hero } = store;
-  return (
-    <section className="relative overflow-hidden bg-lavender">
-      <picture>
-        <source media="(min-width: 768px)" srcSet={imageUrl(hero.imageDesktop, 1600)} />
-        <img
-          src={imageUrl(hero.imageMobile, 800)}
-          alt=""
-          className="absolute inset-0 size-full object-cover"
-          fetchpriority="high"
-        />
-      </picture>
-      <div className="relative mx-auto flex min-h-[460px] max-w-7xl flex-col justify-start px-4 pt-14 pb-10 text-center md:min-h-[480px] md:justify-center md:py-16 md:text-left">
-        <div className="md:max-w-xl">
-          <h1 className="font-display text-4xl leading-tight font-light text-brand-dark sm:text-5xl lg:text-6xl">
-            {hero.title}
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-lg text-ink/85 md:mx-0">{hero.subtitle}</p>
-          <Button as={Link} to="/catalogo" size="lg" className="mt-8">
-            {hero.cta}
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /** Mosaico de categorías con imagen y nombre */
 export function CategoryMosaic() {
   const { categories, loading } = useCategories();

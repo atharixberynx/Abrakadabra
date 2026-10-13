@@ -3,7 +3,7 @@
  * En la Fase 6 se agregan pedidos de hoy, pendientes de retiro, ventas del mes y poco stock.
  */
 import { Link } from 'react-router-dom';
-import { Plus, Shirt, Tags } from 'lucide-react';
+import { Images, Plus, Shirt, Tags } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useFetch } from '../../hooks/useFetch.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
@@ -53,6 +53,7 @@ export default function DashboardPage() {
         <Shortcut to="/admin/productos/nuevo" icon={Plus} title="Nuevo producto" text="Agrega una prenda con sus colores, tallas, existencias y fotos." />
         <Shortcut to="/admin/productos" icon={Shirt} title="Productos" text="Edita precios, existencias y visibilidad." />
         <Shortcut to="/admin/categorias" icon={Tags} title="Categorías" text="Ordena el menú y elige las imágenes del inicio." />
+        <Shortcut to="/admin/inicio" icon={Images} title="Banners de inicio" text="Agrega, ordena o quita las imágenes del carrusel." />
       </div>
 
       <p className="mt-8 text-sm text-ink/70">Las métricas de pedidos y ventas se agregan en la Fase 6.</p>

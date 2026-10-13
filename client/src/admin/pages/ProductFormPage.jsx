@@ -6,6 +6,7 @@
  *  2. Eliminar las fotos quitadas.
  *  3. Subir las fotos nuevas (cada una con su color).
  *  4. Guardar el orden final y el color de todas las fotos.
+ * Si todo sale bien, vuelve a la lista de productos.
  * Si se intenta salir con cambios sin guardar, se pide confirmación.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -216,10 +217,14 @@ function ProductEditor({ product, categories, uploadsEnabled }) {
       setSavedSlug(saved.slug);
       setDirty(Boolean(uploadError));
 
-      if (uploadError) toast.error(`El producto se guardó, pero las fotos nuevas no se subieron: ${uploadError}`);
-      else toast.success(isNew ? 'Producto creado' : 'Cambios guardados');
-
-      if (isNew) navigate(`/admin/productos/${productId}`, { replace: true });
+      if (uploadError) {
+        // El producto quedó guardado pero las fotos no: se queda en el formulario para reintentar
+        toast.error(`El producto se guardó, pero las fotos nuevas no se subieron: ${uploadError}`);
+        if (isNew) navigate(`/admin/productos/${productId}`, { replace: true });
+      } else {
+        toast.success(isNew ? `"${saved.name}" creado` : `"${saved.name}" guardado`);
+        navigate('/admin/productos');
+      }
     } catch (err) {
       const fieldErrors = {};
       for (const detail of err.details ?? []) {

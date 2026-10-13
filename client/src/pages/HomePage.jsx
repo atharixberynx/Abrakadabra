@@ -1,11 +1,12 @@
 /**
  * Página de inicio. Secciones en el orden acordado con la marca:
- * banner · categorías · lo nuevo · beneficios · palazzos · visítanos · mayoreo.
+ * carrusel de banners · categorías · lo nuevo · beneficios · palazzos · visítanos · mayoreo.
  * (La barra de anuncio y el footer los pone StoreLayout.)
  */
 import { store } from '../config/store.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
-import { Benefits, CategoryMosaic, Hero, VisitUs, Wholesale } from '../components/home/HomeSections.jsx';
+import { Benefits, CategoryMosaic, VisitUs, Wholesale } from '../components/home/HomeSections.jsx';
+import { HeroCarousel } from '../components/home/HeroCarousel.jsx';
 import { ProductSection } from '../components/product/ProductSection.jsx';
 
 export default function HomePage() {
@@ -14,7 +15,7 @@ export default function HomePage() {
 
   return (
     <main className="space-y-16 pb-16 sm:space-y-20">
-      <Hero />
+      <HeroCarousel />
       <CategoryMosaic />
       <ProductSection
         title="Lo nuevo"

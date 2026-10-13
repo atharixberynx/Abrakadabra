@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { StarIcon } from '../components/ui/StarIcon.jsx';
 import { AdminLayout } from './AdminLayout.jsx';
 import { ADMIN_NAV } from './adminNav.js';
+import BannersPage from './pages/BannersPage.jsx';
 import CategoriesPage from './pages/CategoriesPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ProductFormPage from './pages/ProductFormPage.jsx';
@@ -31,6 +32,7 @@ export default function AdminApp() {
     <Routes>
       <Route element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="inicio" element={<BannersPage />} />
         <Route path="productos" element={<ProductsPage />} />
         <Route path="productos/:id" element={<ProductFormPage />} />
         <Route path="categorias" element={<CategoriesPage />} />
