@@ -41,6 +41,10 @@
   --color-ink: #2a1a40; /* Texto principal */
   --color-white: #ffffff; /* Fondo general */
 
+  /* Colores de estado (no son de la marca, pero también se editan aquí) */
+  --color-danger: #b42318; /* Errores de formulario, stock agotado */
+  --color-danger-soft: #fef3f2; /* Fondo de avisos de error */
+
   /* ── 3. Familias tipográficas ─────────────────────────────────── */
   --font-display: 'Josefin Sans', ui-sans-serif, system-ui, sans-serif; /* Títulos */
   --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif; /* Texto general */

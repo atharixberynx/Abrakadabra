@@ -22,6 +22,8 @@ const PAIRS = [
   ['ink', 'lavender', 4.5, 'Texto general sobre lavanda'],
   ['brand-dark', 'gold', 4.5, 'Insignia "Nuevo"'],
   ['gold', 'brand', 3, 'Estrella decorativa sobre morado (no es texto)'],
+  ['danger', 'white', 4.5, 'Mensajes de error en formularios'],
+  ['danger', 'danger-soft', 4.5, 'Avisos de error'],
 ];
 
 function luminance(hex) {
