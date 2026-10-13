@@ -24,11 +24,22 @@ const ISSUE_TEXT = {
 export default function CartPage() {
   usePageTitle('Carrito');
   const navigate = useNavigate();
-  const { status: authStatus } = useAuth();
+  const { status: authStatus, isAdmin } = useAuth();
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const validation = useCartValidation();
+
+  if (isAdmin) {
+    return (
+      <main className="mx-auto flex min-h-[50dvh] max-w-xl flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+        <StarIcon className="size-7 text-gold" />
+        <h1 className="text-3xl text-brand-dark">La cuenta admin no compra</h1>
+        <p className="text-ink/80">Puedes recorrer la tienda como la ven las clientas. Para probar una compra, usa una cuenta de clienta.</p>
+        <Button as={Link} to="/admin">Ir al panel</Button>
+      </main>
+    );
+  }
 
   if (items.length === 0) {
     return (

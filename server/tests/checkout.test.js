@@ -7,7 +7,7 @@ import { Order } from '../src/models/Order.js';
 import { Product } from '../src/models/Product.js';
 import { releaseStalePendingOrders } from '../src/services/orderService.js';
 import { useTestDatabase } from './helpers/db.js';
-import { registerCustomer } from './helpers/auth.js';
+import { createAdmin, registerCustomer } from './helpers/auth.js';
 
 useTestDatabase();
 const app = createApp();
@@ -114,6 +114,13 @@ describe('POST /api/orders/checkout', () => {
       .post('/api/orders/checkout')
       .send({ items: [item(palazo, 'negro', 'S', 1)], card: card(), idempotencyKey: crypto.randomUUID() });
     expect(res.status).toBe(401);
+  });
+
+  it('la cuenta admin no puede comprar (403) y no se descuenta stock', async () => {
+    const admin = await createAdmin(app);
+    const res = await checkout({ items: [item(palazo, 'negro', 'S', 1)] }, admin.token);
+    expect(res.status).toBe(403);
+    expect(await stockOf(palazo, 'negro', 'S')).toBe(3);
   });
 
   it('con tarjeta aprobada crea el pedido pagado, descuenta el stock y usa precios de la base de datos', async () => {

@@ -134,7 +134,8 @@ export function Header() {
             {searchOpen ? <X className="size-6" /> : <Search className="size-6" />}
           </button>
           <AccountArea dark={dark} />
-          <CartLink dark={dark} />
+          {/* La cuenta admin solo ve la tienda: no compra, así que no tiene carrito */}
+          {!isAdmin && <CartLink dark={dark} />}
         </div>
       </div>
 

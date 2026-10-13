@@ -39,7 +39,7 @@ const CARD_FIELDS = { 'card.number': 'number', 'card.name': 'name', 'card.expiry
 export default function CheckoutPage() {
   usePageTitle('Pagar');
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const items = useCartStore((s) => s.items);
   const validation = useCartValidation();
 
@@ -49,7 +49,8 @@ export default function CheckoutPage() {
   const [payError, setPayError] = useState(null);
   const idempotencyKey = useRef(null);
 
-  if (items.length === 0) return <Navigate to="/carrito" replace />;
+  // La cuenta admin no compra; el carrito explica por qué
+  if (isAdmin || items.length === 0) return <Navigate to="/carrito" replace />;
 
   const result = validation.result;
   const testMode = result?.paymentTestMode ?? true;

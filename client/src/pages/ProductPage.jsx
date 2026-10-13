@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { Check, MessageCircle, Store } from 'lucide-react';
+import { Check, MessageCircle, Pencil, Store } from 'lucide-react';
 import { store, whatsappUrl } from '../config/store.js';
 import { ProductGallery } from '../components/product/ProductGallery.jsx';
 import { Price } from '../components/product/Price.jsx';
@@ -15,6 +15,7 @@ import { ColorPicker, QuantityStepper, SizePicker } from '../components/product/
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { StoreLoader } from '../components/ui/StoreLoader.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useFetch } from '../hooks/useFetch.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { isOnSale } from '../lib/format.js';
@@ -26,6 +27,7 @@ const LOW_STOCK = 2;
 function ProductDetail({ product }) {
   const [params] = useSearchParams();
   const addItem = useCartStore((s) => s.addItem);
+  const { isAdmin } = useAuth();
 
   const stockOf = (colorKey, size) =>
     product.variants.find((v) => v.colorKey === colorKey && v.size === size)?.stock ?? 0;
@@ -143,22 +145,34 @@ function ProductDetail({ product }) {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <QuantityStepper value={quantity} max={Math.max(stock, 1)} onChange={setQuantity} disabled={!size || stock <= 0} />
-          <Button size="lg" className="flex-1 px-5 whitespace-nowrap" onClick={handleAdd} disabled={!product.inStock || colorSoldOut}>
-            {product.inStock ? 'Agregar al carrito' : 'Agotado'}
-          </Button>
-        </div>
-
-        {added && (
-          <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-lavender px-4 py-3 text-sm text-brand-dark">
-            <span className="flex items-center gap-2">
-              <Check className="size-4" aria-hidden="true" /> Agregado al carrito
-            </span>
-            <Link to="/carrito" className="font-semibold text-brand underline-offset-4 hover:underline">
-              Ver carrito
-            </Link>
+        {isAdmin ? (
+          // Vista de administración: así ven las clientas el producto, pero la cuenta admin no compra
+          <div className="rounded-xl border border-gold bg-gold/15 p-4 text-sm text-ink">
+            <p><strong className="text-brand-dark">Vista de administración.</strong> Así ven las clientas este producto. Para probar una compra, usa una cuenta de clienta.</p>
+            <Button as={Link} to={`/admin/productos/${product.id}`} size="sm" className="mt-3">
+              <Pencil className="size-4" /> Editar este producto
+            </Button>
           </div>
+        ) : (
+          <>
+          <div className="flex flex-wrap items-center gap-3">
+            <QuantityStepper value={quantity} max={Math.max(stock, 1)} onChange={setQuantity} disabled={!size || stock <= 0} />
+            <Button size="lg" className="flex-1 px-5 whitespace-nowrap" onClick={handleAdd} disabled={!product.inStock || colorSoldOut}>
+              {product.inStock ? 'Agregar al carrito' : 'Agotado'}
+            </Button>
+          </div>
+
+          {added && (
+            <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-lavender px-4 py-3 text-sm text-brand-dark">
+              <span className="flex items-center gap-2">
+                <Check className="size-4" aria-hidden="true" /> Agregado al carrito
+              </span>
+              <Link to="/carrito" className="font-semibold text-brand underline-offset-4 hover:underline">
+                Ver carrito
+              </Link>
+            </div>
+          )}
+          </>
         )}
 
         <Button
