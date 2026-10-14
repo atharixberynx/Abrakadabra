@@ -16,6 +16,7 @@ import CartPage from './pages/CartPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import { AboutPage, FaqPage, PickupPage, ReturnsPage, SizeGuidePage } from './pages/info/InfoPages.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import AccountPage from './pages/account/AccountPage.jsx';
@@ -32,6 +33,12 @@ export const router = createBrowserRouter([
       { path: '/catalogo', element: <CatalogPage /> },
       { path: '/producto/:slug', element: <ProductPage /> },
       { path: '/carrito', element: <CartPage /> },
+      // Páginas informativas (textos en content/paginas-informativas.json)
+      { path: '/sobre-nosotras', element: <AboutPage /> },
+      { path: '/retiro-en-tienda', element: <PickupPage /> },
+      { path: '/politica-de-cambios', element: <ReturnsPage /> },
+      { path: '/preguntas-frecuentes', element: <FaqPage /> },
+      { path: '/guia-de-tallas', element: <SizeGuidePage /> },
       {
         path: '/cuenta',
         element: (

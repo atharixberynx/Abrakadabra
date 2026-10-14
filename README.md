@@ -6,7 +6,7 @@ Tienda en línea de **Abrakadabra Fashion Shop**, tienda salvadoreña de moda fe
 
 Proyecto académico de Desarrollo de Software, pensado para que la marca pueda adoptarlo y mantenerlo.
 
-> 🚧 **Estado:** Fase 6 de 8 (gestión de pedidos en el panel). Este README se completa en cada fase.
+> 🚧 **Estado:** Fase 7 de 8 (ajustes y páginas informativas). Este README se completa en cada fase.
 
 ---
 
@@ -168,6 +168,7 @@ Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin"
 | Resumen     | Pedidos de hoy, pendientes de retiro, ventas del mes (vs. el mismo tramo del mes pasado), poco stock      |
 | Pedidos     | Filtrar por estado, fechas o búsqueda; ver detalle; marcar listo / entregado o cancelar (devuelve stock) |
 | Clientas    | Lista de solo lectura con sus pedidos y total comprado                                                   |
+| Ajustes     | Mensajes de la barra de anuncio, WhatsApp, redes, dirección, horario y enlace "Cómo llegar"             |
 | Productos   | Buscar y filtrar (categoría, visibles/ocultos, poco stock, agotados), mostrar u ocultar, editar y eliminar |
 | Inicio      | Banners del carrusel de la página de inicio: agregar (computadora y celular), ordenar, ocultar o quitar  |
 | Categorías  | Crear, renombrar, ordenar (flechas o arrastrando), mostrar u ocultar e imagen del mosaico de inicio      |
@@ -183,6 +184,34 @@ Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin"
 3. **Existencias**: una tabla color × talla. La casilla indica si esa combinación **se vende**; el número, cuántas unidades hay. Las casillas de cada fila y columna activan o quitan todo un color o toda una talla (p. ej. "el rojo solo viene en S y M").
 4. **Fotos** (hasta 8): arrástralas o elígelas, ordénalas (la primera es la principal) y **asigna cada foto a su color**: en la tienda, al elegir ese color se muestran sus fotos.
 5. **Guardar producto**. Si intentas salir con cambios sin guardar, el panel te avisa.
+
+## Editar los textos de las páginas informativas
+
+Los textos de **Sobre nosotras, Retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas** están en **un solo archivo**: [`client/src/content/paginas-informativas.json`](client/src/content/paginas-informativas.json). Se pueden cambiar sin tocar el código.
+
+1. Abre el archivo y cambia solo el texto **entre comillas** a la derecha de los dos puntos (`"titulo": "Sobre nosotras"`). No borres comillas, comas ni corchetes.
+2. Para agregar un párrafo, pregunta o paso, copia uno existente y sepáralo del anterior con una coma.
+3. Puedes usar estos marcadores, que se rellenan solos con lo guardado en **Panel › Ajustes**:
+
+| Marcador      | Se reemplaza por                          |
+| ------------- | ----------------------------------------- |
+| `{tienda}`    | Abrakadabra Fashion Shop                  |
+| `{direccion}` | La dirección completa de la sucursal      |
+| `{horario}`   | El horario (p. ej. "lunes a viernes de…") |
+| `{whatsapp}`  | El número de WhatsApp (+503 7777-7777)    |
+
+4. Revisa que quedó bien escrito:
+   ```bash
+   cd client
+   npm run check:content
+   ```
+   Si algo está mal, el script dice qué falta o en qué línea revisar. Esta revisión también corre sola antes de publicar (`npm run build`), así un error no llega a la tienda.
+
+Otras marcas del archivo:
+- `"borrador": true` en la política de cambios muestra el aviso *"Borrador: por validar con la marca"*, **solo en desarrollo**. Cámbialo a `false` cuando la marca apruebe el texto.
+- `"porValidar": true` en la guía de tallas muestra la nota "Medidas de referencia, por validar". Cámbialo a `false` cuando las medidas estén confirmadas.
+
+> Los datos que cambian seguido (anuncios, WhatsApp, dirección, horario, mapa y redes) **no** están en este archivo: se editan en **Panel › Ajustes** y se ven al instante.
 
 ## Configurar Cloudinary (fotos)
 

@@ -1,0 +1,148 @@
+{
+  "_instrucciones": [
+    "Este archivo tiene los textos de las páginas informativas de la tienda. Puedes cambiarlos sin tocar el código.",
+    "Edita solo el texto que está entre comillas a la derecha de los dos puntos. No borres las comillas, las comas ni los corchetes.",
+    "Para agregar un párrafo, pregunta o paso, copia uno existente (con sus llaves o comillas) y sepáralo del anterior con una coma.",
+    "Marcadores que se rellenan solos con lo guardado en Panel › Ajustes: {tienda}, {direccion}, {horario} y {whatsapp}.",
+    "Después de editar, corre 'npm run check:content' dentro de la carpeta client para confirmar que no hay errores."
+  ],
+
+  "sobreNosotras": {
+    "titulo": "Sobre nosotras",
+    "introduccion": "Somos {tienda}, una tienda salvadoreña de moda femenina con un estilo casual chic y de oficina, pensada para mujeres reales de todas las tallas.",
+    "historia": [
+      "Empezamos a compartir nuestras prendas en redes sociales en noviembre de 2020, con la idea de que vestirse bien no tiene por qué ser complicado ni caro.",
+      "Con el tiempo, nuestras clientas nos pidieron más tallas, más colores y un lugar donde probarse la ropa antes de llevarla. Así nació nuestra tienda física en San Salvador y, ahora, nuestra tienda en línea."
+    ],
+    "propuesta": "Traemos moda en tendencia, importada, a precios accesibles y con varios colores por modelo, para que encuentres la prenda que va contigo.",
+    "diferenciadores": [
+      { "titulo": "Tallas S, M, L, XL y talla única", "texto": "Muchas tiendas solo llegan a L. Nosotras pensamos en más cuerpos." },
+      { "titulo": "Precios desde $5 hasta $25.50", "texto": "Moda en tendencia sin descuadrar tu presupuesto." },
+      { "titulo": "Varios colores por modelo", "texto": "Casi todos nuestros diseños vienen en dos o más tonos." },
+      { "titulo": "Tienda física para probarte", "texto": "Compra en línea y retira en nuestra sucursal, o visítanos y pruébate tus prendas." }
+    ],
+    "cierre": "Be fashionable, be Abrakadabra."
+  },
+
+  "retiroEnTienda": {
+    "titulo": "Retiro en tienda",
+    "introduccion": "Todas las compras en línea se retiran en nuestra sucursal, sin costo de envío.",
+    "pasos": [
+      { "titulo": "Haz tu pedido en línea", "texto": "Elige tus prendas, paga con tarjeta y recibe tu número de pedido (por ejemplo, ABK-000123)." },
+      { "titulo": "Espera el aviso", "texto": "Cuando tu pedido esté listo, lo verás en Mi cuenta › Mis pedidos como “Listo para retirar”. También podemos avisarte por WhatsApp." },
+      { "titulo": "Pasa por tu pedido", "texto": "Visítanos en {direccion}, en nuestro horario: {horario}" }
+    ],
+    "queLlevar": [
+      "Tu número de pedido (lo encuentras en Mi cuenta › Mis pedidos).",
+      "Tu DUI o documento de identidad."
+    ],
+    "nota": "Si no puedes pasar tú, escríbenos por WhatsApp al {whatsapp} antes de enviar a otra persona para coordinarlo."
+  },
+
+  "politicaCambios": {
+    "titulo": "Cambios y devoluciones",
+    "borrador": true,
+    "introduccion": "Queremos que te encante lo que compras. Si algo no te queda, te ayudamos a cambiarlo.",
+    "secciones": [
+      {
+        "titulo": "Plazo para cambios",
+        "parrafos": ["Puedes solicitar un cambio dentro de los 7 días siguientes a la fecha en que retiraste tu pedido."]
+      },
+      {
+        "titulo": "Condiciones",
+        "parrafos": ["Para que el cambio proceda, la prenda debe estar:"],
+        "lista": [
+          "Sin usar, sin lavar y en buen estado.",
+          "Con sus etiquetas originales.",
+          "Acompañada de tu número de pedido."
+        ]
+      },
+      {
+        "titulo": "Qué puedes cambiar",
+        "parrafos": ["Puedes cambiar por otra talla, otro color o, si lo prefieres, por otra prenda de igual o mayor valor (pagando la diferencia), según la disponibilidad en tienda."]
+      },
+      {
+        "titulo": "Productos sin cambio",
+        "lista": ["Accesorios como aretes, por higiene.", "Prendas compradas en liquidación, si así se indica al comprar."]
+      },
+      {
+        "titulo": "Prendas con defecto",
+        "parrafos": ["Si tu prenda tiene un defecto de fábrica, avísanos dentro de los 7 días. Te la cambiamos por la misma prenda o, si no hay existencias, te damos un crédito para otra compra."]
+      },
+      {
+        "titulo": "Cómo solicitarlo",
+        "parrafos": ["Visítanos en {direccion} con la prenda y tu número de pedido, o escríbenos por WhatsApp al {whatsapp}."]
+      }
+    ],
+    "actualizada": "octubre de 2026"
+  },
+
+  "preguntasFrecuentes": {
+    "titulo": "Preguntas frecuentes",
+    "introduccion": "Si no encuentras tu respuesta, escríbenos por WhatsApp y con gusto te ayudamos.",
+    "grupos": [
+      {
+        "titulo": "Tallas",
+        "preguntas": [
+          { "pregunta": "¿Qué tallas manejan?", "respuesta": "Manejamos tallas S, M, L, XL y talla única en la mayoría de nuestros modelos." },
+          { "pregunta": "¿Cómo sé cuál es mi talla?", "respuesta": "Revisa nuestra Guía de tallas con las medidas de cada talla. Si tienes dudas, escríbenos y te orientamos." },
+          { "pregunta": "¿Qué significa talla única?", "respuesta": "Son prendas de tela elástica o corte holgado que se ajustan a varias tallas. En cada producto te indicamos las tallas disponibles." }
+        ]
+      },
+      {
+        "titulo": "Colores",
+        "preguntas": [
+          { "pregunta": "¿Cómo veo cómo se ve la prenda en otro color?", "respuesta": "En la página de cada producto, toca un color y verás las fotos de la prenda en ese tono." },
+          { "pregunta": "¿Por qué un color aparece tachado?", "respuesta": "Significa que ese color está agotado por ahora. Puedes consultarnos por WhatsApp si volverá a llegar." }
+        ]
+      },
+      {
+        "titulo": "Retiro en tienda",
+        "preguntas": [
+          { "pregunta": "¿Hacen envíos a domicilio?", "respuesta": "Por ahora todas las compras en línea se retiran en nuestra sucursal: {direccion}." },
+          { "pregunta": "¿Cuándo puedo pasar por mi pedido?", "respuesta": "Cuando aparezca como “Listo para retirar” en Mi cuenta › Mis pedidos. Nuestro horario es {horario}" },
+          { "pregunta": "¿Qué debo llevar?", "respuesta": "Tu número de pedido y tu DUI." }
+        ]
+      },
+      {
+        "titulo": "Pagos",
+        "preguntas": [
+          { "pregunta": "¿Qué formas de pago aceptan en línea?", "respuesta": "Aceptamos tarjetas de crédito y débito Visa y Mastercard." },
+          { "pregunta": "¿Es seguro pagar en la tienda en línea?", "respuesta": "Sí. Tus datos viajan cifrados y no guardamos el número completo de tu tarjeta ni su código de seguridad." },
+          { "pregunta": "¿Necesito una cuenta para comprar?", "respuesta": "Puedes ver el catálogo y armar tu carrito sin cuenta. Para pagar te pediremos iniciar sesión o registrarte, así puedes seguir el estado de tus pedidos." }
+        ]
+      },
+      {
+        "titulo": "Mayoreo",
+        "preguntas": [
+          { "pregunta": "¿Venden por mayoreo?", "respuesta": "Sí. Escríbenos por WhatsApp al {whatsapp} y te compartimos precios y condiciones de mayoreo." }
+        ]
+      }
+    ]
+  },
+
+  "guiaTallas": {
+    "titulo": "Guía de tallas",
+    "porValidar": true,
+    "introduccion": "Usa esta tabla como referencia. Compara tus medidas con las de cada talla y, si estás entre dos, elige la mayor para mayor comodidad.",
+    "unidad": "cm",
+    "columnas": ["Talla", "Busto", "Cintura", "Cadera"],
+    "filas": [
+      ["S", "84 a 88", "64 a 68", "90 a 94"],
+      ["M", "88 a 92", "68 a 72", "94 a 98"],
+      ["L", "92 a 98", "72 a 78", "98 a 104"],
+      ["XL", "98 a 104", "78 a 84", "104 a 110"]
+    ],
+    "tallaUnica": "La talla única es de tela elástica o corte holgado y se ajusta aproximadamente de la S a la L. En cada producto indicamos si es talla única.",
+    "comoMedirte": [
+      { "medida": "Busto", "como": "Mide alrededor de la parte más llena del busto, con la cinta horizontal." },
+      { "medida": "Cintura", "como": "Mide alrededor de la parte más angosta de tu cintura, sin apretar." },
+      { "medida": "Cadera", "como": "Mide alrededor de la parte más ancha de tu cadera, con los pies juntos." }
+    ],
+    "consejos": [
+      "Mídete con ropa ligera y una cinta métrica flexible.",
+      "Si tienes dudas entre dos tallas, escríbenos por WhatsApp y te ayudamos a elegir.",
+      "Recuerda que también puedes visitarnos y probarte las prendas en tienda."
+    ]
+  }
+}
