@@ -7,7 +7,7 @@
 import { useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { CreditCard, Lock, MapPin, Store } from 'lucide-react';
-import { store } from '../config/store.js';
+import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -42,6 +42,7 @@ export default function CheckoutPage() {
   const { user, isAdmin } = useAuth();
   const items = useCartStore((s) => s.items);
   const validation = useCartValidation();
+  const store = useStoreInfo();
 
   const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [cardErrors, setCardErrors] = useState({});

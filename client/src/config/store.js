@@ -1,10 +1,11 @@
 /**
  * Configuración central de la tienda.
  *
- * Todos los textos y datos que la marca puede querer cambiar están aquí,
- * para no tener que tocar componentes. En la Fase 7, varios de estos valores
- * (anuncio, banners, WhatsApp, horario, dirección) se podrán editar desde
- * el panel admin; estos quedan como valores por defecto.
+ * - Textos fijos de la marca (nombre, eslogan, beneficios, logos…): se cambian aquí.
+ * - Anuncios, WhatsApp, dirección, horario, mapa y redes: se editan en Panel › Ajustes.
+ *   Los valores de este archivo solo se usan mientras no haya ajustes guardados.
+ *   En los componentes, léelos con useStoreInfo() (context/StoreInfoContext.jsx).
+ * - Textos largos de las páginas informativas: content/paginas-informativas.json.
  */
 
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '50300000000';
@@ -88,9 +89,3 @@ export const store = {
   /** Sección de productos destacada en inicio (la línea estrella de la marca) */
   featuredCategory: { slug: 'palazzos', title: 'Palazzos', subtitle: 'Nuestra línea estrella' },
 };
-
-/** Arma un enlace de WhatsApp con un mensaje prellenado */
-export function whatsappUrl(message = '') {
-  const text = message ? `?text=${encodeURIComponent(message)}` : '';
-  return `https://wa.me/${store.whatsapp.number}${text}`;
-}

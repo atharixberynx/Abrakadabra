@@ -3,13 +3,13 @@
  * Se pausa al pasar el cursor o enfocar, y no rota si la persona prefiere menos movimiento.
  */
 import { useEffect, useState } from 'react';
-import { store } from '../../config/store.js';
+import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { StarIcon } from '../ui/StarIcon.jsx';
 
 const ROTATE_MS = 4000;
 
 export function AnnouncementBar({ className = 'bg-brand' }) {
-  const messages = store.announcements;
+  const messages = useStoreInfo().announcements;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 

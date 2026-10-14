@@ -4,11 +4,11 @@
  */
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, MessageCircle } from 'lucide-react';
-import { store, whatsappUrl } from '../../config/store.js';
+import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { FacebookIcon, InstagramIcon } from '../ui/SocialIcons.jsx';
 import { StarIcon } from '../ui/StarIcon.jsx';
 
-// Las páginas informativas se completan en la Fase 7
+// Páginas informativas (textos en content/paginas-informativas.json)
 const HELP_LINKS = [
   { to: '/retiro-en-tienda', label: 'Retiro en tienda' },
   { to: '/politica-de-cambios', label: 'Cambios y devoluciones' },
@@ -29,6 +29,7 @@ function ColumnTitle({ children }) {
 }
 
 export function Footer() {
+  const store = useStoreInfo();
   return (
     <footer className="bg-brand text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -76,7 +77,7 @@ export function Footer() {
             </li>
             <li>
               <a
-                href={whatsappUrl('Hola, tengo una consulta sobre la tienda.')}
+                href={store.whatsappUrl('Hola, tengo una consulta sobre la tienda.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 font-medium text-brand transition hover:bg-lavender"

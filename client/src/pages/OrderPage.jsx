@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle2, ClipboardList, MapPin } from 'lucide-react';
-import { store } from '../config/store.js';
+import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { StarIcon } from '../components/ui/StarIcon.jsx';
 import { StoreLoader } from '../components/ui/StoreLoader.jsx';
@@ -51,6 +51,7 @@ export default function OrderPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const clearCart = useCartStore((s) => s.clear);
+  const store = useStoreInfo();
   const justPlaced = location.pathname.startsWith('/pedido/');
 
   // Recién pagado: se vacía el carrito una sola vez (y se quita la marca del historial)

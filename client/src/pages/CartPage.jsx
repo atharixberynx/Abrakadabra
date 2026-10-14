@@ -4,7 +4,7 @@
  */
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, Store, Trash2 } from 'lucide-react';
-import { store } from '../config/store.js';
+import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { QuantityStepper } from '../components/product/VariantPickers.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
@@ -29,6 +29,7 @@ export default function CartPage() {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const validation = useCartValidation();
+  const store = useStoreInfo();
 
   if (isAdmin) {
     return (

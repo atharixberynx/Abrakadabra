@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Check, MessageCircle, Pencil, Store } from 'lucide-react';
-import { store, whatsappUrl } from '../config/store.js';
+import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { ProductGallery } from '../components/product/ProductGallery.jsx';
 import { Price } from '../components/product/Price.jsx';
 import { ProductSection } from '../components/product/ProductSection.jsx';
@@ -28,6 +28,7 @@ function ProductDetail({ product }) {
   const [params] = useSearchParams();
   const addItem = useCartStore((s) => s.addItem);
   const { isAdmin } = useAuth();
+  const store = useStoreInfo();
 
   const stockOf = (colorKey, size) =>
     product.variants.find((v) => v.colorKey === colorKey && v.size === size)?.stock ?? 0;
@@ -177,7 +178,7 @@ function ProductDetail({ product }) {
 
         <Button
           as="a"
-          href={whatsappUrl(whatsappMessage)}
+          href={store.whatsappUrl(whatsappMessage)}
           target="_blank"
           rel="noopener noreferrer"
           variant="secondary"

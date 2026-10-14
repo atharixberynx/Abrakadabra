@@ -3,7 +3,8 @@
  */
 import { Link } from 'react-router-dom';
 import { Clock, MapPin, MessageCircle, Palette, Ruler, Store, Tag } from 'lucide-react';
-import { store, whatsappUrl } from '../../config/store.js';
+import { store } from '../../config/store.js';
+import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
 import { imageUrl } from '../../lib/images.js';
 import { Button } from '../ui/Button.jsx';
@@ -77,6 +78,7 @@ export function Benefits() {
 
 /** Dirección, horario y mapa de la sucursal */
 export function VisitUs() {
+  const store = useStoreInfo();
   return (
     <section id="visitanos" className="mx-auto max-w-7xl scroll-mt-28 px-4">
       <div className="grid overflow-hidden rounded-card border border-lavender shadow-soft md:grid-cols-2">
@@ -123,6 +125,7 @@ export function VisitUs() {
 
 /** Invitación a comprar por mayoreo por WhatsApp */
 export function Wholesale() {
+  const { whatsappUrl, whatsapp } = useStoreInfo();
   return (
     <section className="mx-auto max-w-7xl px-4">
       <div className="relative overflow-hidden rounded-card bg-brand px-6 py-12 text-center text-white sm:px-12">
@@ -135,7 +138,7 @@ export function Wholesale() {
         </p>
         <Button
           as="a"
-          href={whatsappUrl(store.whatsapp.wholesaleMessage)}
+          href={whatsappUrl(whatsapp.wholesaleMessage)}
           target="_blank"
           rel="noopener noreferrer"
           variant="gold"

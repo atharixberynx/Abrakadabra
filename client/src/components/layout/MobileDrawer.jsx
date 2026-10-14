@@ -6,7 +6,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, MessageCircle, X } from 'lucide-react';
-import { store, whatsappUrl } from '../../config/store.js';
+import { store } from '../../config/store.js';
+import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCategories } from '../../hooks/useCategories.js';
 import { Portal } from '../ui/Portal.jsx';
@@ -19,6 +20,7 @@ export function MobileDrawer({ open, onClose }) {
   const [level, setLevel] = useState('main');
   const { categories } = useCategories();
   const { status, user, isAdmin } = useAuth();
+  const { whatsappUrl } = useStoreInfo();
   const panelRef = useRef(null);
 
   // Cada vez que se abre, empieza en el primer nivel
@@ -112,6 +114,10 @@ export function MobileDrawer({ open, onClose }) {
                 <li>
                   <Link to="/#visitanos" onClick={onClose} className={itemClass}>Visítanos</Link>
                 </li>
+                <li className="my-2 border-t border-lavender" />
+                <li><Link to="/retiro-en-tienda" onClick={onClose} className={itemClass}>Retiro en tienda</Link></li>
+                <li><Link to="/guia-de-tallas" onClick={onClose} className={itemClass}>Guía de tallas</Link></li>
+                <li><Link to="/preguntas-frecuentes" onClick={onClose} className={itemClass}>Preguntas frecuentes</Link></li>
               </ul>
             ) : (
               <ul className="space-y-1">
