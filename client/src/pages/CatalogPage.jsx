@@ -81,7 +81,11 @@ export default function CatalogPage() {
     : filters.nuevos && !category
       ? 'Lo nuevo'
       : (category?.name ?? 'Catálogo');
-  usePageTitle(title);
+  usePageTitle(title, {
+    description: category
+      ? `${category.name} para mujer en tallas S a XL, varios colores y precios accesibles. Compra en línea y retira en tienda en San Salvador.`
+      : 'Catálogo de moda femenina: palazzos, conjuntos, blusas, vestidos y más, en tallas S a XL. Compra en línea y retira en tienda.',
+  });
 
   /** Aplica cambios a los filtros de la URL (un valor vacío quita el filtro) */
   const updateFilters = (changes) => {

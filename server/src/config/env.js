@@ -16,6 +16,9 @@ const envSchema = z.object({
   // Lista separada por comas de orígenes permitidos para CORS
   CLIENT_URL: z.string().default('http://localhost:5173'),
 
+  // URL pública de la tienda (para el mapa del sitio). Si falta, se usa el primer origen de CLIENT_URL
+  SITE_URL: z.string().optional(),
+
   // Número de proxies delante de la API (Render = 1). Ver README > Despliegue.
   TRUST_PROXY: z.coerce.number().int().min(0).default(1),
 
@@ -56,3 +59,4 @@ export const env = {
     .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean),
 };
+env.siteUrl = (raw.SITE_URL || env.clientOrigins[0] || '').replace(/\/$/, '');

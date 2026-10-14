@@ -7,7 +7,7 @@ import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 
 export function InfoLayout({ title, intro, notice, children, whatsappMessage }) {
-  usePageTitle(title);
+  usePageTitle(title, { description: intro });
   const { whatsappUrl } = useStoreInfo();
 
   return (

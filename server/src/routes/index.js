@@ -10,6 +10,7 @@ import adminRoutes from './admin/index.js';
 import { bannerRoutes, categoryRoutes, productRoutes } from './catalog.routes.js';
 import { cartRoutes, orderRoutes } from './order.routes.js';
 import * as settings from '../controllers/settings.controller.js';
+import { sitemap } from '../controllers/sitemap.controller.js';
 import { asyncHandler } from '../utils/httpError.js';
 
 const router = Router();
@@ -23,6 +24,7 @@ router.use('/banners', bannerRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.get('/settings', asyncHandler(settings.getPublic));
+router.get('/sitemap.xml', asyncHandler(sitemap));
 
 // Todo /api/admin exige sesión iniciada y rol admin (la seguridad real vive aquí, no en React)
 router.use('/admin', requireAuth, requireRole('admin'), adminRoutes);

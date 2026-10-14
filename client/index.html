@@ -19,7 +19,10 @@
     <meta property="og:site_name" content="Abrakadabra Fashion Shop" />
     <meta property="og:title" content="Abrakadabra Fashion Shop" />
     <meta property="og:description" content="Be fashionable, be Abrakadabra. Moda femenina de la S a la XL." />
-    <meta property="og:image" content="/brand/og-image.png" />
+    <!-- %SITE_URL% = VITE_SITE_URL (las redes necesitan la URL completa de la imagen) -->
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/brand/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:locale" content="es_SV" />
 
     <!-- Las tipografías se cargan desde src/theme/brand.css; esto solo acelera la conexión -->

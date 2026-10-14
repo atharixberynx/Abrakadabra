@@ -212,11 +212,42 @@ function ProductDetail({ product }) {
   );
 }
 
+/**
+ * Datos estructurados (schema.org/Product) para que Google muestre precio y disponibilidad.
+ * Es un bloque de datos (no se ejecuta); se escapa "<" para que ningún texto pueda cerrar la etiqueta.
+ */
+// Barra invertida + u003c: así ningún texto del producto puede cerrar la etiqueta <script>
+const LT_ESCAPED = `${String.fromCharCode(92)}u003c`;
+
+function ProductJsonLd({ product }) {
+  const absolute = (url) => (url?.startsWith('/') ? `${window.location.origin}${url}` : url);
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: product.images.map((img) => absolute(img.url)),
+    category: product.category?.name,
+    brand: { '@type': 'Brand', name: 'Abrakadabra Fashion Shop' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: product.price.toFixed(2),
+      availability: product.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `${window.location.origin}/producto/${product.slug}`,
+    },
+  };
+  return <script type="application/ld+json">{JSON.stringify(data).replace(/</g, LT_ESCAPED)}</script>;
+}
+
 export default function ProductPage() {
   const { slug } = useParams();
   const { data, loading, error, slow } = useFetch(`/products/${slug}`);
   const product = data?.product;
-  usePageTitle(product?.name ?? (error ? 'Producto no encontrado' : 'Cargando…'));
+  usePageTitle(product?.name ?? (error ? 'Producto no encontrado' : 'Cargando…'), {
+    description: product ? `${product.description} Tallas ${product.sizes.join(', ')}. Retira en tienda en San Salvador.` : undefined,
+    image: product?.images?.[0]?.url,
+  });
 
   if (loading) return <StoreLoader message="Cargando la prenda…" slow={slow} className="min-h-[60dvh]" />;
 
@@ -244,6 +275,7 @@ export default function ProductPage() {
           <span aria-hidden="true"> / </span>
           <span className="text-ink">{product.name}</span>
         </nav>
+        <ProductJsonLd product={product} />
         {/* key: si se navega a otro producto, el detalle se reinicia */}
         <ProductDetail key={product.id} product={product} />
       </div>
