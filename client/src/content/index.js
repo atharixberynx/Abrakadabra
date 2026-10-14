@@ -7,17 +7,11 @@
 import { useCallback } from 'react';
 import content from './paginas-informativas.json';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
+import { formatWhatsapp } from '../lib/format.js';
 
 export const pages = content;
 
 const lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
-
-/** "50377771234" → "+503 7777-1234" */
-function formatWhatsapp(number) {
-  const digits = number.replace(/\D/g, '');
-  if (digits.length === 11 && digits.startsWith('503')) return `+503 ${digits.slice(3, 7)}-${digits.slice(7)}`;
-  return `+${digits}`;
-}
 
 export function useFillPlaceholders() {
   const info = useStoreInfo();

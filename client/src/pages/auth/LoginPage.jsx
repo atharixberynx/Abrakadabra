@@ -12,12 +12,36 @@ import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { getRedirectTarget } from '../../routes/redirect.js';
 import { loginSchema } from '../../schemas/auth.js';
 
+// "Recuérdame" también recuerda el correo en este dispositivo (nunca la contraseña)
+const REMEMBERED_EMAIL = 'abk_email';
+
+function readRememberedEmail() {
+  try {
+    return localStorage.getItem(REMEMBERED_EMAIL) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function saveRememberedEmail(email, remember) {
+  try {
+    if (remember) localStorage.setItem(REMEMBERED_EMAIL, email);
+    else localStorage.removeItem(REMEMBERED_EMAIL);
+  } catch {
+    // almacenamiento bloqueado (modo privado): no es crítico
+  }
+}
+
 export default function LoginPage() {
   usePageTitle('Iniciar sesión');
   const { login, status, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState(null);
+  const [initialValues] = useState(() => {
+    const email = readRememberedEmail();
+    return { email, password: '', remember: Boolean(email) };
+  });
 
   const {
     register,
@@ -25,7 +49,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', remember: false },
+    defaultValues: initialValues,
   });
 
   // Si ya hay sesión, no tiene sentido mostrar el formulario
@@ -37,6 +61,7 @@ export default function LoginPage() {
     setServerError(null);
     try {
       const loggedUser = await login(data);
+      saveRememberedEmail(data.email.trim().toLowerCase(), data.remember);
       // Regresa a donde estaba (p. ej. el checkout) con el carrito intacto
       navigate(getRedirectTarget(location, loggedUser), { replace: true });
     } catch (err) {
@@ -74,7 +99,7 @@ export default function LoginPage() {
           <span>
             Recuérdame
             <span className="block text-xs text-ink/70">
-              Mantén la sesión abierta 7 días en este dispositivo. No lo marques en computadoras compartidas.
+              Guarda tu correo y mantiene la sesión abierta 7 días en este dispositivo. No lo marques en computadoras compartidas.
             </span>
           </span>
         </label>

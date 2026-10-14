@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { clearFetchCache, useFetch } from '../../hooks/useFetch.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { apiFetch } from '../../lib/api.js';
+import { formatWhatsapp } from '../../lib/format.js';
 import { toast } from '../../store/uiStore.js';
 import { Card, ErrorState, LoadingState, PageHeader } from '../components/AdminUi.jsx';
 
@@ -59,7 +60,7 @@ function SettingsForm({ initial }) {
     setErrors({});
     try {
       const { settings } = await apiFetch('/admin/settings', { method: 'PUT', body: form });
-      setForm(settings);
+      setForm({ ...settings, whatsappNumber: formatWhatsapp(settings.whatsappNumber) });
       setDirty(false);
       clearFetchCache(); // la tienda (también en otras pestañas) se actualiza al instante
       toast.success('Ajustes guardados');
@@ -114,10 +115,17 @@ function SettingsForm({ initial }) {
                 <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-brand hover:underline">
                   Probar el enlace <ExternalLink className="size-3" />
                 </a>
-              ) : 'Con código de país, por ejemplo 503 7777 7777.'}
+              ) : 'Con código de país, por ejemplo +503 7777-7777.'}
               error={errors.whatsappNumber}
             >
-              <input value={form.whatsappNumber} onChange={(e) => set({ whatsappNumber: e.target.value })} inputMode="tel" placeholder="50377777777" className={`${inputClass} ${borderFor(errors.whatsappNumber)}`} />
+              <input
+                value={form.whatsappNumber}
+                onChange={(e) => set({ whatsappNumber: e.target.value })}
+                onBlur={(e) => set({ whatsappNumber: formatWhatsapp(e.target.value) })}
+                inputMode="tel"
+                placeholder="+503 7777-7777"
+                className={`${inputClass} ${borderFor(errors.whatsappNumber)}`}
+              />
             </Field>
             <Field label="Instagram" hint="Enlace completo. Déjalo vacío para no mostrarlo." error={errors.instagramUrl}>
               <input value={form.instagramUrl} onChange={(e) => set({ instagramUrl: e.target.value })} placeholder="https://www.instagram.com/abrakadabraes" className={`${inputClass} ${borderFor(errors.instagramUrl)}`} />
@@ -214,7 +222,7 @@ export default function SettingsPage() {
         <SettingsForm
           initial={{
             announcements: data.settings.announcements,
-            whatsappNumber: data.settings.whatsappNumber,
+            whatsappNumber: formatWhatsapp(data.settings.whatsappNumber), // se muestra "+503 7777-7777"; el servidor guarda solo dígitos
             address: { line2: '', ...data.settings.address },
             hours: data.settings.hours.map(({ days, time }) => ({ days, time })),
             mapsUrl: data.settings.mapsUrl,
