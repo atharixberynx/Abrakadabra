@@ -42,9 +42,10 @@ function AccountArea({ dark }) {
 
   if (status === 'anonymous') {
     return (
-      <Link to="/iniciar-sesion" className={linkClass} aria-label="Iniciar sesión">
-        <UserRound className="size-5" />
-        <span className="hidden md:inline">Ingresar</span>
+      <Link to="/iniciar-sesion" className={linkClass}>
+        <UserRound className="size-5" aria-hidden="true" />
+        {/* En el celular el texto no se ve, pero los lectores de pantalla lo leen */}
+        <span className="sr-only md:not-sr-only">Ingresar</span>
       </Link>
     );
   }
@@ -65,9 +66,9 @@ function AccountArea({ dark }) {
           Panel admin
         </Link>
       )}
-      <Link to="/cuenta" className={linkClass} aria-label="Mi cuenta">
-        <UserRound className="size-5" />
-        <span className="hidden md:inline">Mi cuenta</span>
+      <Link to="/cuenta" className={linkClass}>
+        <UserRound className="size-5" aria-hidden="true" />
+        <span className="sr-only md:not-sr-only">Mi cuenta</span>
       </Link>
     </div>
   );

@@ -20,7 +20,7 @@ const SWIPE_MIN_PX = 40;
 /** Envuelve el banner en un enlace interno, externo o en nada */
 function SlideLink({ link, label, children }) {
   const className = 'absolute inset-0 block';
-  if (!link) return <div className={className}>{children}</div>;
+  if (!link) return <div className={className} role={label ? 'img' : undefined} aria-label={label}>{children}</div>;
   if (link.startsWith('/')) {
     return <Link to={link} className={className} aria-label={label}>{children}</Link>;
   }
@@ -154,7 +154,8 @@ export function HeroCarousel() {
             {...(!active && { inert: '' })}
             className={`absolute inset-0 transition-opacity duration-700 ${active ? 'opacity-100' : 'opacity-0'}`}
           >
-            <SlideLink link={banner.link} label={banner.alt}>
+            {/* Si el banner tiene texto visible, ese es su nombre; si es solo imagen, se usa la descripción */}
+            <SlideLink link={banner.link} label={banner.title || banner.subtitle || banner.buttonText ? undefined : banner.alt}>
               <BannerPicture banner={banner} className="absolute inset-0 size-full object-cover object-[center_40%]" eager={i === 0} />
               <BannerText banner={banner} />
             </SlideLink>

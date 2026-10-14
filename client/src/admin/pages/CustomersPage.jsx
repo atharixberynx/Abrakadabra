@@ -168,7 +168,7 @@ export function CustomerDetailPage() {
           {orders.length === 0 ? (
             <p className="py-4 text-center text-sm text-ink/80">Todavía no ha hecho pedidos.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Pedidos de la clienta">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="border-b border-lavender text-xs uppercase tracking-wider text-ink/80">
                   <tr>

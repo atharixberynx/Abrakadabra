@@ -168,7 +168,7 @@ function ProductDetail({ product }) {
               <span className="flex items-center gap-2">
                 <Check className="size-4" aria-hidden="true" /> Agregado al carrito
               </span>
-              <Link to="/carrito" className="font-semibold text-brand underline-offset-4 hover:underline">
+              <Link to="/carrito" className="font-semibold text-brand underline underline-offset-4">
                 Ver carrito
               </Link>
             </div>
@@ -194,7 +194,7 @@ function ProductDetail({ product }) {
             <p className="font-semibold text-ink">Disponible para retiro en tienda</p>
             <p className="mt-0.5 text-ink/80">
               {store.address.line2}, {store.address.city}.{' '}
-              <Link to="/retiro-en-tienda" className="text-brand underline-offset-4 hover:underline">
+              <Link to="/retiro-en-tienda" className="text-brand underline underline-offset-4">
                 ¿Cómo funciona?
               </Link>
             </p>

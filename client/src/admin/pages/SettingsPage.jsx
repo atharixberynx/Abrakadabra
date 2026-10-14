@@ -185,7 +185,7 @@ function SettingsForm({ initial }) {
         <ul className="space-y-3 text-sm text-ink/85">
           <li className="flex gap-3">
             <Images className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
-            <span>Los <strong>banners del carrusel</strong> se editan en <Link to="/admin/inicio" className="text-brand underline-offset-4 hover:underline">Inicio</Link>.</span>
+            <span>Los <strong>banners del carrusel</strong> se editan en <Link to="/admin/inicio" className="text-brand underline underline-offset-4">Inicio</Link>.</span>
           </li>
           <li className="flex gap-3">
             <FileText className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />

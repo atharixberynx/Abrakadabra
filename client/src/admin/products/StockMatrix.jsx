@@ -82,7 +82,7 @@ export function StockMatrix({ colors, sizes, stock, onChange }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-brand/15">
+      <div className="overflow-x-auto rounded-xl border border-brand/15" tabIndex={0} role="region" aria-label="Matriz de existencias">
         <table className="w-full min-w-max text-sm">
           <thead className="bg-lavender/60">
             <tr>

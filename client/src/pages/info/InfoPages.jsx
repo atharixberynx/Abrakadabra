@@ -155,7 +155,7 @@ export function SizeGuidePage() {
             Medidas de referencia, por validar con la marca. Si tienes dudas, consúltanos antes de comprar.
           </p>
         )}
-        <div className="overflow-x-auto rounded-card border border-lavender">
+        <div className="overflow-x-auto rounded-card border border-lavender" tabIndex={0} role="region" aria-label="Tabla de medidas (desliza para ver más)">
           <table className="w-full min-w-[420px] text-left text-sm">
             <caption className="sr-only">Medidas de cada talla en {page.unidad}</caption>
             <thead className="bg-lavender text-brand-dark">
