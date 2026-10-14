@@ -147,7 +147,8 @@ export function Header() {
       )}
 
       <nav aria-label="Categorías" className={`hidden md:block ${dark ? 'border-t border-white/15' : 'border-t border-lavender'}`}>
-        <ul className="mx-auto flex max-w-7xl items-center justify-center gap-7 px-4">
+        {/* En tablet las categorías no caben en una fila: se deslizan. Desde 1024 px van centradas */}
+        <ul className="scrollbar-none relative mx-auto flex max-w-7xl items-center gap-6 overflow-x-auto px-4 whitespace-nowrap lg:justify-center lg:gap-7">
           <li>
             <Link to="/catalogo?nuevos=1" className={navLinkClass('/catalogo?nuevos=1')}>Lo nuevo</Link>
           </li>
