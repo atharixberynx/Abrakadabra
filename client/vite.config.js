@@ -1,7 +1,15 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { readFileSync } from 'node:fs';
 import { BRAND_CSS_PATH, readBrandColors } from './scripts/brand-tokens.mjs';
+
+/** Cabeceras de seguridad de vercel.json, para probarlas igual en `npm run preview` */
+function vercelSecurityHeaders() {
+  const config = JSON.parse(readFileSync(new URL('./vercel.json', import.meta.url), 'utf8'));
+  const rule = config.headers.find((h) => h.source === '/(.*)');
+  return Object.fromEntries(rule.headers.map(({ key, value }) => [key, value]));
+}
 
 /**
  * Reemplaza %BRAND_COLOR% en index.html (color de la barra del navegador en el celular)
@@ -51,6 +59,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss(), brandThemeColor(), seo(siteUrl)],
+    // `npm run preview` sirve la versión publicada con las mismas cabeceras (CSP incluida) que Vercel
+    preview: {
+      port: 4173,
+      headers: vercelSecurityHeaders(),
+      proxy: { '/api': 'http://localhost:4000' },
+    },
     server: {
       port: 5173,
       // En desarrollo, /api se reenvía al backend local. Así el navegador ve un solo dominio,

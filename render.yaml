@@ -1,0 +1,41 @@
+# Blueprint de Render para la API (plan gratuito).
+# En Render: New › Blueprint › elige este repositorio. Render lee este archivo y crea el servicio.
+# Las variables marcadas con `sync: false` las pide Render al crear el servicio (no se suben al repo).
+services:
+  - type: web
+    name: abrakadabra-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      - key: MONGODB_URI
+        sync: false
+      # Render genera secretos aleatorios largos para los tokens
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # URL de la tienda en Vercel, p. ej. https://abrakadabra.vercel.app (sin "/" final)
+      - key: CLIENT_URL
+        sync: false
+      - key: SITE_URL
+        sync: false
+      # Vercel (rewrite) + proxy de Render = 2 proxies. Verifica con /api/health → clientIp (README › Despliegue)
+      - key: TRUST_PROXY
+        value: "2"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: simulated

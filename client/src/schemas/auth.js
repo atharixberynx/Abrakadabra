@@ -2,7 +2,7 @@
  * Validación de formularios de cuenta (mismas reglas que el backend,
  * server/src/validators/auth.validators.js). El backend vuelve a validar todo.
  */
-import { z } from 'zod';
+import { z } from '../lib/zod.js';
 
 export const PASSWORD_RULES = [
   { id: 'length', label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },
