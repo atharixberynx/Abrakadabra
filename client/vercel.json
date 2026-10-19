@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://TU-BACKEND.onrender.com/api/:path*"
+      "destination": "https://abrakadabra-api.onrender.com/api/:path*"
     },
     {
       "source": "/sitemap.xml",
-      "destination": "https://TU-BACKEND.onrender.com/api/sitemap.xml"
+      "destination": "https://abrakadabra-api.onrender.com/api/sitemap.xml"
     },
     {
       "source": "/(.*)",
