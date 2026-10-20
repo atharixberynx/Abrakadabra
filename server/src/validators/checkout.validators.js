@@ -4,9 +4,11 @@
  * el total siempre se calcula con los precios de la base de datos.
  */
 import { z } from 'zod';
+import { isValidLocation } from '../data/elSalvador.js';
 import { SIZES } from '../models/Product.js';
 import { detectBrand, isFutureExpiry, isValidLuhn, onlyDigits } from '../services/payments/card.js';
 import { objectId } from './admin.validators.js';
+import { phoneField } from './auth.validators.js';
 
 export const MAX_QUANTITY_PER_LINE = 20;
 
@@ -41,8 +43,36 @@ const cardSchema = z
     { message: 'La tarjeta está vencida', path: ['expiry'] },
   );
 
+const shippingText = (min, max, message) => z.string({ error: message }).trim().min(min, message).max(max, `Máximo ${max} caracteres`);
+
+/**
+ * Entrega. Retiro en tienda, o envío con la dirección completa.
+ * `expectedFee` es el costo de envío que vio la clienta: si la tienda lo cambió mientras
+ * pagaba, se avisa en vez de cobrar otro monto.
+ */
+const deliverySchema = z.discriminatedUnion('method', [
+  z.object({ method: z.literal('retiro') }),
+  z
+    .object({
+      method: z.literal('envio'),
+      recipientName: shippingText(2, 80, 'Escribe el nombre de quien recibe'),
+      phone: phoneField,
+      department: z.string({ error: 'Elige el departamento' }).trim().min(1, 'Elige el departamento'),
+      municipality: z.string({ error: 'Elige el municipio' }).trim().min(1, 'Elige el municipio'),
+      district: z.string({ error: 'Elige el distrito' }).trim().min(1, 'Elige el distrito'),
+      address: shippingText(10, 200, 'Escribe la dirección completa (colonia, calle o pasaje y número de casa)'),
+      reference: z.string().trim().max(200, 'Máximo 200 caracteres').default(''),
+      expectedFee: z.number().min(0).optional(),
+    })
+    .refine((d) => isValidLocation(d.department, d.municipality, d.district), {
+      message: 'Elige un departamento, municipio y distrito válidos',
+      path: ['district'],
+    }),
+]);
+
 export const checkoutSchema = z.object({
   items: z.array(cartItemSchema).min(1, 'Tu carrito está vacío').max(50),
+  delivery: deliverySchema.default({ method: 'retiro' }),
   card: cardSchema,
   idempotencyKey: z.uuid('Identificador de compra inválido'),
 });

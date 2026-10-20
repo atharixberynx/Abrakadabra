@@ -3,6 +3,7 @@
  * Lista blanca estricta: cualquier campo que no esté aquí se descarta.
  */
 import { z } from 'zod';
+import { DELIVERY_METHODS } from '../models/Order.js';
 import { MAX_IMAGES, SIZES } from '../models/Product.js';
 
 export const objectId = z.string().regex(/^[a-f\d]{24}$/i, 'Identificador inválido');
@@ -134,11 +135,12 @@ export const bannerImageParamsSchema = z.object({ id: objectId, variant: z.enum(
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Usa una fecha válida');
 
 export const adminOrderListQuerySchema = z.object({
-  // "pendientes" = pagados + listos para retiro (lo que falta entregar)
+  // "pendientes" = pagados + listos para retiro + en camino (lo que falta entregar)
   estado: z.preprocess(
     blankToUndefined,
-    z.enum(['pendientes', 'pagado', 'listo_para_retiro', 'entregado', 'cancelado', 'pago_rechazado']).optional(),
+    z.enum(['pendientes', 'pagado', 'listo_para_retiro', 'enviado', 'entregado', 'cancelado', 'pago_rechazado']).optional(),
   ),
+  entrega: z.preprocess(blankToUndefined, z.enum(DELIVERY_METHODS).optional()),
   desde: z.preprocess(blankToUndefined, isoDate.optional()),
   hasta: z.preprocess(blankToUndefined, isoDate.optional()),
   q: z.preprocess(blankToUndefined, z.string().trim().max(60).optional()),
@@ -147,7 +149,7 @@ export const adminOrderListQuerySchema = z.object({
 });
 
 export const orderStatusSchema = z.object({
-  status: z.enum(['listo_para_retiro', 'entregado', 'cancelado']),
+  status: z.enum(['listo_para_retiro', 'enviado', 'entregado', 'cancelado']),
 });
 
 export const customerListQuerySchema = z.object({
@@ -183,4 +185,17 @@ export const settingsSchema = z.object({
   mapsUrl: httpsUrl.refine((v) => v !== '', 'Pega el enlace de Google Maps'),
   instagramUrl: httpsUrl,
   facebookUrl: httpsUrl,
+  // Opcionales: si no vienen, se conserva lo guardado
+  shippingEnabled: z.boolean().optional(),
+  shippingFee: z
+    .preprocess(
+      (v) => (v === '' ? undefined : v), // campo vacío: error claro en vez de convertirse en $0
+      z.coerce
+        .number({ error: 'Escribe el costo de envío' })
+        .min(0, 'El costo no puede ser negativo')
+        .max(50, 'El costo de envío puede ser de hasta $50')
+        .transform((v) => Math.round(v * 100) / 100),
+    )
+    .optional(),
+  shippingTime: z.string().trim().min(3, 'Escribe el tiempo de entrega').max(80).optional(),
 });

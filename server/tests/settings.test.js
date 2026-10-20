@@ -65,6 +65,20 @@ describe('Ajustes de la tienda', () => {
     });
   });
 
+  it('guarda el costo y el tiempo de envío, y conserva lo guardado si no se envían', async () => {
+    const admin = await createAdmin(app);
+    const put = (body) => request(app).put('/api/admin/settings').set('Authorization', `Bearer ${admin.token}`).send(body);
+
+    const res = await put({ ...newSettings, shippingEnabled: true, shippingFee: '4.256', shippingTime: 'De 1 a 3 días hábiles' });
+    expect(res.status).toBe(200);
+    expect(res.body.settings).toMatchObject({ shippingEnabled: true, shippingFee: 4.26, shippingTime: 'De 1 a 3 días hábiles' });
+
+    await put(newSettings);
+    expect((await request(app).get('/api/settings')).body.settings.shippingFee).toBe(4.26);
+
+    expect((await put({ ...newSettings, shippingFee: -1 })).status).toBe(400);
+  });
+
   it('valida los datos y rechaza enlaces que no son https', async () => {
     const admin = await createAdmin(app);
     const res = await request(app)

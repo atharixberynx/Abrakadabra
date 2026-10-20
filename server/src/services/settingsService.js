@@ -19,6 +19,9 @@ export async function getSettings() {
     mapsUrl: pick('mapsUrl'),
     instagramUrl: pick('instagramUrl'),
     facebookUrl: pick('facebookUrl'),
+    shippingEnabled: pick('shippingEnabled'),
+    shippingFee: pick('shippingFee'),
+    shippingTime: pick('shippingTime'),
     updatedAt: saved.updatedAt ?? null,
   };
   return cache;

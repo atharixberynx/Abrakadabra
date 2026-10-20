@@ -1,10 +1,16 @@
 import { validateCart } from '../services/cartService.js';
 import * as orders from '../services/orderService.js';
 import { isTestMode } from '../services/payments/index.js';
+import { getSettings } from '../services/settingsService.js';
 
-/** POST /api/cart/validate — no requiere cuenta */
+/** POST /api/cart/validate — no requiere cuenta. Incluye el costo de envío vigente */
 export async function validate(req, res) {
-  res.json({ ...(await validateCart(req.body.items)), paymentTestMode: isTestMode });
+  const [cart, settings] = await Promise.all([validateCart(req.body.items), getSettings()]);
+  res.json({
+    ...cart,
+    paymentTestMode: isTestMode,
+    shipping: { enabled: settings.shippingEnabled, fee: settings.shippingFee, time: settings.shippingTime },
+  });
 }
 
 /** POST /api/orders/checkout — requiere sesión */

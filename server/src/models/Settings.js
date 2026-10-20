@@ -27,6 +27,10 @@ const settingsSchema = new mongoose.Schema(
     mapsUrl: { type: String, trim: true, maxlength: 500 }, // enlace "Cómo llegar"
     instagramUrl: { type: String, trim: true, maxlength: 200, default: '' },
     facebookUrl: { type: String, trim: true, maxlength: 200, default: '' },
+    // Envío a domicilio: se puede pausar sin tocar código; el costo se suma al total del pedido
+    shippingEnabled: { type: Boolean },
+    shippingFee: { type: Number, min: 0, max: 50 },
+    shippingTime: { type: String, trim: true, maxlength: 80 }, // "De 2 a 4 días hábiles"
   },
   {
     timestamps: true,

@@ -1,10 +1,10 @@
 /**
  * Panel: pedidos, cambios de estado, resumen y clientas.
  *
- * Cambios de estado permitidos:
- *   pagado            → listo_para_retiro | cancelado
- *   listo_para_retiro → entregado | cancelado
- *   entregado y cancelado son finales.
+ * Cambios de estado permitidos (dependen de la entrega):
+ *   Retiro en tienda: pagado → listo_para_retiro → entregado
+ *   Envío:            pagado → enviado → entregado
+ *   En ambos se puede cancelar antes de entregar. entregado y cancelado son finales.
  * Al cancelar se devuelve el stock (una sola vez, aunque se intente cancelar dos veces).
  */
 import mongoose from 'mongoose';
@@ -17,21 +17,29 @@ import { escapeRegex, round2 } from '../utils/text.js';
 import { restoreStock } from './orderService.js';
 
 export const TRANSITIONS = {
-  pagado: ['listo_para_retiro', 'cancelado'],
-  listo_para_retiro: ['entregado', 'cancelado'],
-  entregado: [],
-  cancelado: [],
+  retiro: {
+    pagado: ['listo_para_retiro', 'cancelado'],
+    listo_para_retiro: ['entregado', 'cancelado'],
+  },
+  envio: {
+    pagado: ['enviado', 'cancelado'],
+    enviado: ['entregado', 'cancelado'],
+  },
 };
 
-const PENDING_PICKUP = ['pagado', 'listo_para_retiro'];
-const SOLD = ['pagado', 'listo_para_retiro', 'entregado'];
+const PENDING = ['pagado', 'listo_para_retiro', 'enviado'];
+const SOLD = ['pagado', 'listo_para_retiro', 'enviado', 'entregado'];
+
+// Los pedidos anteriores al envío a domicilio no tienen `delivery`: cuentan como retiro
+const methodFilter = (method) => (method === 'envio' ? 'envio' : mongoose.trusted({ $ne: 'envio' }));
 
 /** Filtro de la lista de pedidos del panel */
-function buildOrderFilter({ estado, desde, hasta, q }) {
+function buildOrderFilter({ estado, entrega, desde, hasta, q }) {
   const filter = {};
-  if (estado === 'pendientes') filter.status = mongoose.trusted({ $in: PENDING_PICKUP });
+  if (estado === 'pendientes') filter.status = mongoose.trusted({ $in: PENDING });
   else if (estado) filter.status = estado;
   else filter.status = mongoose.trusted({ $in: CUSTOMER_VISIBLE_STATUSES }); // los intentos fallidos no estorban
+  if (entrega) filter['delivery.method'] = methodFilter(entrega);
 
   if (desde || hasta) {
     filter.createdAt = mongoose.trusted({
@@ -50,7 +58,7 @@ export async function listOrders({ page, limit, ...filters }) {
   const filter = buildOrderFilter(filters);
   const [orders, total] = await Promise.all([
     Order.find(filter)
-      .select('orderNumber customer items total status createdAt payment.brand payment.last4')
+      .select('orderNumber customer items total status createdAt delivery.method delivery.department')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -65,6 +73,8 @@ export async function listOrders({ page, limit, ...filters }) {
       pieces: o.items.reduce((n, i) => n + i.quantity, 0),
       total: o.total,
       status: o.status,
+      deliveryMethod: o.delivery?.method ?? 'retiro',
+      department: o.delivery?.department ?? null,
       createdAt: o.createdAt,
     })),
     total,
@@ -80,14 +90,18 @@ export async function getOrder(id) {
 }
 
 export async function changeOrderStatus(id, nextStatus) {
-  const allowedFrom = Object.keys(TRANSITIONS).filter((from) => TRANSITIONS[from].includes(nextStatus));
+  // Estados desde los que se permite el cambio, según el tipo de entrega
+  const allowed = Object.entries(TRANSITIONS)
+    .map(([method, map]) => ({ method, from: Object.keys(map).filter((from) => map[from].includes(nextStatus)) }))
+    .filter(({ from }) => from.length > 0)
+    .map(({ method, from }) => ({ status: mongoose.trusted({ $in: from }), 'delivery.method': methodFilter(method) }));
   const session = await mongoose.startSession();
   try {
     let updated;
     await session.withTransaction(async () => {
       // Cambio atómico: solo si el pedido sigue en un estado desde el que se permite el cambio
       updated = await Order.findOneAndUpdate(
-        { _id: id, status: mongoose.trusted({ $in: allowedFrom }) },
+        { _id: id, $or: allowed },
         { $set: { status: nextStatus }, $push: { statusHistory: { status: nextStatus, at: new Date() } } },
         { session, returnDocument: 'after' },
       );
@@ -119,11 +133,12 @@ export async function getDashboard(now = new Date()) {
   const lastMonthStart = startOfMonthSV(now, -1);
   const lastMonthSameMoment = sameMomentLastMonthSV(now);
 
-  const [ordersToday, toPrepare, readyForPickup, monthSales, lastMonthSales, lowStockProducts, soldOutCount, recent] =
+  const [ordersToday, toPrepare, readyForPickup, shipped, monthSales, lastMonthSales, lowStockProducts, soldOutCount, recent] =
     await Promise.all([
       Order.countDocuments({ status: mongoose.trusted({ $in: SOLD }), paidAt: mongoose.trusted({ $gte: today }) }),
       Order.countDocuments({ status: 'pagado' }),
       Order.countDocuments({ status: 'listo_para_retiro' }),
+      Order.countDocuments({ status: 'enviado' }),
       salesTotal(monthStart, now),
       salesTotal(lastMonthStart, lastMonthSameMoment),
       Product.find({
@@ -134,8 +149,8 @@ export async function getDashboard(now = new Date()) {
         .limit(20)
         .lean(),
       Product.countDocuments({ inStock: false, active: true }),
-      Order.find({ status: mongoose.trusted({ $in: PENDING_PICKUP }) })
-        .select('orderNumber customer.name total status createdAt items.quantity')
+      Order.find({ status: mongoose.trusted({ $in: PENDING }) })
+        .select('orderNumber customer.name total status createdAt items.quantity delivery.method')
         .sort({ createdAt: 1 }) // los más antiguos primero: hay que prepararlos antes
         .limit(8)
         .lean(),
@@ -143,7 +158,7 @@ export async function getDashboard(now = new Date()) {
 
   return {
     ordersToday,
-    pendingPickup: { toPrepare, ready: readyForPickup, total: toPrepare + readyForPickup },
+    pending: { toPrepare, ready: readyForPickup, shipped, total: toPrepare + readyForPickup + shipped },
     monthSales: { ...monthSales, previousPeriod: lastMonthSales.total },
     lowStock: lowStockProducts.map((p) => ({
       id: p._id.toString(),
@@ -161,6 +176,7 @@ export async function getDashboard(now = new Date()) {
       customerName: o.customer.name,
       total: o.total,
       status: o.status,
+      deliveryMethod: o.delivery?.method ?? 'retiro',
       pieces: o.items.reduce((n, i) => n + i.quantity, 0),
       createdAt: o.createdAt,
     })),

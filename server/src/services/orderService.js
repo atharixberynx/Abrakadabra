@@ -15,15 +15,18 @@ import { logger } from '../config/logger.js';
 import { nextSequence } from '../models/Counter.js';
 import { CUSTOMER_VISIBLE_STATUSES, Order } from '../models/Order.js';
 import { Product, computeDerivedFields } from '../models/Product.js';
+import { User } from '../models/User.js';
 import { HttpError } from '../utils/httpError.js';
+import { round2 } from '../utils/text.js';
 import { BLOCKING_ISSUES, validateCart } from './cartService.js';
 import { detectBrand, last4 } from './payments/card.js';
 import { paymentProvider } from './payments/index.js';
-import { getPickupInfo } from './settingsService.js';
+import { getPickupInfo, getSettings } from './settingsService.js';
 
 const PENDING_EXPIRY_MS = 15 * 60 * 1000;
 
 const formatOrderNumber = (seq) => `ABK-${String(seq).padStart(6, '0')}`;
+const formatUsd = (amount) => `$${amount.toFixed(2)}`;
 
 /** Recalcula tallas y colores disponibles, inStock y totalStock tras cambiar el stock */
 async function refreshDerived(productIds, session) {
@@ -75,7 +78,25 @@ async function markRejected(order, reason) {
   });
 }
 
-export async function checkout(user, { items, card, idempotencyKey }) {
+/**
+ * Datos de entrega que se copian en el pedido. El costo del envío sale SIEMPRE de los ajustes
+ * vigentes (nunca del navegador).
+ */
+async function resolveDelivery({ method, expectedFee, ...address }) {
+  if (method === 'retiro') {
+    return { delivery: { method: 'retiro', fee: 0 }, pickup: await getPickupInfo() };
+  }
+  const { shippingEnabled, shippingFee, shippingTime } = await getSettings();
+  if (!shippingEnabled) {
+    throw new HttpError(409, 'Por ahora no estamos haciendo envíos a domicilio. Elige retiro en tienda.');
+  }
+  if (expectedFee !== undefined && round2(expectedFee) !== round2(shippingFee)) {
+    throw new HttpError(409, `El costo de envío cambió a ${formatUsd(shippingFee)}. Revisa el total antes de pagar.`);
+  }
+  return { delivery: { method: 'envio', fee: round2(shippingFee), estimatedTime: shippingTime, ...address } };
+}
+
+export async function checkout(user, { items, delivery: deliveryInput, card, idempotencyKey }) {
   // 0. La misma compra enviada dos veces (doble clic, reintento) no crea otro pedido
   const previous = await Order.findOne({ user: user._id, idempotencyKey });
   if (previous) {
@@ -91,7 +112,7 @@ export async function checkout(user, { items, card, idempotencyKey }) {
   }
 
   // 2. Reservar stock y crear el pedido (todo o nada)
-  const pickup = await getPickupInfo(); // dirección y horario vigentes (Panel › Ajustes)
+  const { delivery, pickup } = await resolveDelivery(deliveryInput); // costo y sucursal vigentes (Panel › Ajustes)
   const order = await withTransaction(async (session) => {
     for (const line of cart.lines) {
       const result = await Product.updateOne(
@@ -133,11 +154,13 @@ export async function checkout(user, { items, card, idempotencyKey }) {
             unitPrice: l.unitPrice,
             lineTotal: l.lineTotal,
           })),
-          total: cart.total,
+          subtotal: cart.total,
+          total: round2(cart.total + delivery.fee),
           statusHistory: [{ status: 'pendiente_pago' }],
           // Solo marca y últimos 4 dígitos: nunca el número completo ni el CVV
           payment: { provider: paymentProvider.name, brand: detectBrand(card.number), last4: last4(card.number) },
-          pickup,
+          delivery,
+          ...(pickup && { pickup }),
           idempotencyKey,
         },
       ],
@@ -166,7 +189,16 @@ export async function checkout(user, { items, card, idempotencyKey }) {
   order.payment.transactionId = payment.transactionId;
   order.paidAt = new Date();
   await order.save();
-  logger.info({ orderNumber: order.orderNumber, total: order.total }, 'Pedido pagado');
+  logger.info({ orderNumber: order.orderNumber, total: order.total, delivery: delivery.method }, 'Pedido pagado');
+
+  // La próxima compra con envío propone esta misma dirección
+  if (delivery.method === 'envio') {
+    const { recipientName, phone, department, municipality, district, address, reference } = delivery;
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { shippingAddress: { recipientName, phone, department, municipality, district, address, reference } } },
+    ).catch((err) => logger.error({ err }, 'No se pudo guardar la dirección de envío'));
+  }
   return order;
 }
 

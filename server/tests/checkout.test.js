@@ -228,6 +228,88 @@ describe('POST /api/orders/checkout', () => {
   });
 });
 
+describe('Envío a domicilio', () => {
+  const shipping = (overrides = {}) => ({
+    method: 'envio',
+    recipientName: 'Ana López',
+    phone: '7123 4567',
+    department: 'San Miguel',
+    municipality: 'San Miguel Centro',
+    district: 'San Miguel',
+    address: 'Colonia Ciudad Jardín, calle 5, casa 22',
+    reference: 'Frente a la tienda azul',
+    ...overrides,
+  });
+
+  it('/cart/validate informa el costo y el tiempo de envío vigentes', async () => {
+    const res = await request(app).post('/api/cart/validate').send({ items: [item(blusa, 'blanco', 'L', 1)] });
+    expect(res.body.shipping).toEqual({ enabled: true, fee: 3.5, time: 'De 2 a 4 días hábiles' });
+  });
+
+  it('suma $3.50 al total, cobra ese monto y guarda la dirección en el pedido y en la cuenta', async () => {
+    const res = await checkout({ items: [item(palazo, 'negro', 'S', 2)], delivery: shipping({ expectedFee: 3.5 }) });
+    expect(res.status).toBe(201);
+    const { order } = res.body;
+    expect(order.subtotal).toBe(29);
+    expect(order.total).toBe(32.5);
+    expect(order.delivery).toMatchObject({
+      method: 'envio',
+      fee: 3.5,
+      phone: '7123-4567', // normalizado
+      department: 'San Miguel',
+      municipality: 'San Miguel Centro',
+      district: 'San Miguel',
+      reference: 'Frente a la tienda azul',
+      estimatedTime: 'De 2 a 4 días hábiles',
+    });
+    expect(order.delivery.expectedFee).toBeUndefined();
+    expect(order.pickup?.address).toBeUndefined();
+
+    const me = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${customer.token}`);
+    expect(me.body.user.shippingAddress).toMatchObject({ district: 'San Miguel', address: 'Colonia Ciudad Jardín, calle 5, casa 22' });
+  });
+
+  it('retiro en tienda es gratis y no pide dirección', async () => {
+    const res = await checkout({ items: [item(blusa, 'blanco', 'L', 1)], delivery: { method: 'retiro' } });
+    expect(res.status).toBe(201);
+    expect(res.body.order).toMatchObject({ subtotal: 9, total: 9, delivery: { method: 'retiro', fee: 0 } });
+  });
+
+  it.each([
+    ['sin dirección', { address: '' }, 'delivery.address'],
+    ['distrito que no es de ese municipio', { district: 'Santa Tecla' }, 'delivery.district'],
+    ['departamento inventado', { department: 'Narnia' }, 'delivery.district'],
+    ['teléfono inválido', { phone: '123' }, 'delivery.phone'],
+  ])('rechaza datos de envío inválidos: %s', async (_caso, overrides, field) => {
+    const res = await checkout({ items: [item(blusa, 'blanco', 'L', 1)], delivery: shipping(overrides) });
+    expect(res.status).toBe(400);
+    expect(res.body.error.details.map((d) => d.field)).toContain(field);
+    expect(await stockOf(blusa, 'blanco', 'L')).toBe(5);
+  });
+
+  it('si el costo cambió mientras pagaba, avisa en vez de cobrar otro monto', async () => {
+    const res = await checkout({ items: [item(blusa, 'blanco', 'L', 1)], delivery: shipping({ expectedFee: 2 }) });
+    expect(res.status).toBe(409);
+    expect(res.body.error.message).toMatch(/\$3\.50/);
+    expect(await Order.countDocuments()).toBe(0);
+  });
+
+  it('si la tienda pausó los envíos, solo se puede retirar en tienda', async () => {
+    const admin = await createAdmin(app);
+    const settings = await request(app).get('/api/settings');
+    const { announcements, whatsappNumber, address, hours, mapsUrl, instagramUrl, facebookUrl } = settings.body.settings;
+    await request(app)
+      .put('/api/admin/settings')
+      .set('Authorization', `Bearer ${admin.token}`)
+      .send({ announcements, whatsappNumber, address, hours, mapsUrl, instagramUrl, facebookUrl, shippingEnabled: false });
+
+    const res = await checkout({ items: [item(blusa, 'blanco', 'L', 1)], delivery: shipping() });
+    expect(res.status).toBe(409);
+    expect(res.body.error.message).toMatch(/no estamos haciendo envíos/);
+    expect(await stockOf(blusa, 'blanco', 'L')).toBe(5);
+  });
+});
+
 describe('Mis pedidos', () => {
   it('cada clienta ve solo sus pedidos, y el detalle ajeno responde 404', async () => {
     const created = await checkout({ items: [item(palazo, 'negro', 'S', 1)] });

@@ -10,6 +10,22 @@ const userSchema = new mongoose.Schema(
     // `select: false`: nunca sale en las consultas salvo que se pida explícitamente
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLES, default: 'customer' },
+    // Última dirección de envío usada: el checkout la propone la próxima vez
+    shippingAddress: {
+      type: new mongoose.Schema(
+        {
+          recipientName: String,
+          phone: String,
+          department: String,
+          municipality: String,
+          district: String,
+          address: String,
+          reference: String,
+        },
+        { _id: false },
+      ),
+      default: undefined,
+    },
   },
   {
     timestamps: true,

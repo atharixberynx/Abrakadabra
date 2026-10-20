@@ -18,7 +18,17 @@ let palazo;
 
 const asAdmin = (req) => req.set('Authorization', `Bearer ${admin.token}`);
 
-async function buy(customer, quantity = 1, size = 'S', cardNumber = '4242424242424242') {
+const SHIPPING = {
+  method: 'envio',
+  recipientName: 'María López',
+  phone: '7123-4567',
+  department: 'La Libertad',
+  municipality: 'La Libertad Sur',
+  district: 'Santa Tecla',
+  address: 'Colonia Las Delicias, pasaje 3, casa 14',
+};
+
+async function buy(customer, quantity = 1, size = 'S', cardNumber = '4242424242424242', delivery = undefined) {
   const res = await request(app)
     .post('/api/orders/checkout')
     .set('Authorization', `Bearer ${customer.token}`)
@@ -26,6 +36,7 @@ async function buy(customer, quantity = 1, size = 'S', cardNumber = '42424242424
       items: [{ productId: palazo.id, colorKey: 'negro', size, quantity }],
       card: { number: cardNumber, name: 'Clienta', expiry: '12/39', cvv: '123' },
       idempotencyKey: crypto.randomUUID(),
+      ...(delivery && { delivery }),
     });
   return res.body.order;
 }
@@ -85,7 +96,25 @@ describe('Lista de pedidos', () => {
     expect(byName.body.items.map((o) => o.customer.name)).toEqual(['Ana Pérez']);
 
     const byNumber = await asAdmin(request(app).get(`/api/admin/orders?q=${paid.orderNumber}`));
-    expect(byNumber.body.items[0]).toMatchObject({ orderNumber: paid.orderNumber, pieces: 1, total: 14.5 });
+    expect(byNumber.body.items[0]).toMatchObject({ orderNumber: paid.orderNumber, pieces: 1, total: 14.5, deliveryMethod: 'retiro' });
+  });
+
+  it('filtra por tipo de entrega y cuenta los envíos en camino como pendientes', async () => {
+    const pickup = await buy(maria);
+    const shipped = await buy(maria, 1, 'S', undefined, SHIPPING);
+    await changeStatus(shipped, 'enviado');
+
+    const envios = await asAdmin(request(app).get('/api/admin/orders?entrega=envio'));
+    expect(envios.body.items.map((o) => o.orderNumber)).toEqual([shipped.orderNumber]);
+    expect(envios.body.items[0]).toMatchObject({ deliveryMethod: 'envio', department: 'La Libertad', total: 18 });
+
+    const retiros = await asAdmin(request(app).get('/api/admin/orders?entrega=retiro'));
+    expect(retiros.body.items.map((o) => o.orderNumber)).toEqual([pickup.orderNumber]);
+
+    const pending = await asAdmin(request(app).get('/api/admin/orders?estado=pendientes'));
+    expect(pending.body.total).toBe(2);
+    const dashboard = await asAdmin(request(app).get('/api/admin/dashboard'));
+    expect(dashboard.body.pending).toEqual({ toPrepare: 1, ready: 0, shipped: 1, total: 2 });
   });
 
   it('filtra por rango de fechas (hora de El Salvador)', async () => {
@@ -148,6 +177,29 @@ describe('Cambios de estado', () => {
     expect(await stockOf()).toBe(10);
   });
 
+  it('un envío sigue pagado → enviado → entregado, y no puede pasar por "listo para retiro"', async () => {
+    const order = await buy(maria, 1, 'S', undefined, SHIPPING);
+    expect((await changeStatus(order, 'listo_para_retiro')).status).toBe(409);
+    expect((await changeStatus(order, 'entregado')).status).toBe(409); // falta "enviado"
+    expect((await changeStatus(order, 'enviado')).body.order.status).toBe('enviado');
+    expect((await changeStatus(order, 'entregado')).body.order.status).toBe('entregado');
+  });
+
+  it('un retiro en tienda (también los pedidos antiguos sin datos de entrega) no puede marcarse como enviado', async () => {
+    const order = await buy(maria);
+    expect((await changeStatus(order, 'enviado')).status).toBe(409);
+    await Order.updateOne({ _id: order.id }, { $unset: { delivery: 1, subtotal: 1 } }); // como un pedido de antes
+    expect((await changeStatus(order, 'enviado')).status).toBe(409);
+    expect((await changeStatus(order, 'listo_para_retiro')).body.order.status).toBe('listo_para_retiro');
+  });
+
+  it('un envío cancelado en camino devuelve el stock', async () => {
+    const order = await buy(maria, 2, 'S', undefined, SHIPPING);
+    await changeStatus(order, 'enviado');
+    expect((await changeStatus(order, 'cancelado')).body.order.status).toBe('cancelado');
+    expect(await stockOf()).toBe(10);
+  });
+
   it('la clienta ve el nuevo estado en "Mis pedidos"', async () => {
     const order = await buy(maria);
     await changeStatus(order, 'listo_para_retiro');
@@ -167,7 +219,7 @@ describe('Resumen del panel', () => {
     const res = await asAdmin(request(app).get('/api/admin/dashboard'));
     expect(res.status).toBe(200);
     expect(res.body.ordersToday).toBe(2); // el cancelado no cuenta
-    expect(res.body.pendingPickup).toEqual({ toPrepare: 1, ready: 1, total: 2 });
+    expect(res.body.pending).toEqual({ toPrepare: 1, ready: 1, shipped: 0, total: 2 });
     expect(res.body.monthSales.total).toBe(58);
     expect(res.body.lowStock).toHaveLength(1);
     expect(res.body.lowStock[0].variants).toEqual([{ color: 'Negro', size: 'M', stock: 1 }]);

@@ -5,7 +5,7 @@
  */
 export const DEFAULT_SETTINGS = {
   announcements: [
-    'Compra en línea y retira en tienda',
+    'Envíos a todo El Salvador o retiro gratis en tienda',
     'Tallas S a XL y talla única',
     'Precios desde $5',
     'Venta al detalle y por mayoreo',
@@ -23,4 +23,7 @@ export const DEFAULT_SETTINGS = {
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Centro+Comercial+Feria+Rosa+San+Salvador',
   instagramUrl: 'https://www.instagram.com/abrakadabraes',
   facebookUrl: 'https://www.facebook.com/abrakadabraes',
+  shippingEnabled: true,
+  shippingFee: 3.5,
+  shippingTime: 'De 2 a 4 días hábiles',
 };
