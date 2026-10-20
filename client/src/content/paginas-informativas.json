@@ -3,7 +3,7 @@
     "Este archivo tiene los textos de las páginas informativas de la tienda. Puedes cambiarlos sin tocar el código.",
     "Edita solo el texto que está entre comillas a la derecha de los dos puntos. No borres las comillas, las comas ni los corchetes.",
     "Para agregar un párrafo, pregunta o paso, copia uno existente (con sus llaves o comillas) y sepáralo del anterior con una coma.",
-    "Marcadores que se rellenan solos con lo guardado en Panel › Ajustes: {tienda}, {direccion}, {horario} y {whatsapp}.",
+    "Marcadores que se rellenan solos con lo guardado en Panel › Ajustes: {tienda}, {direccion}, {horario}, {whatsapp}, {costoEnvio} y {tiempoEnvio}.",
     "Después de editar, corre 'npm run check:content' dentro de la carpeta client para confirmar que no hay errores."
   ],
 
@@ -19,14 +19,22 @@
       { "titulo": "Tallas S, M, L, XL y talla única", "texto": "Muchas tiendas solo llegan a L. Nosotras pensamos en más cuerpos." },
       { "titulo": "Precios desde $5 hasta $25.50", "texto": "Moda en tendencia sin descuadrar tu presupuesto." },
       { "titulo": "Varios colores por modelo", "texto": "Casi todos nuestros diseños vienen en dos o más tonos." },
-      { "titulo": "Tienda física para probarte", "texto": "Compra en línea y retira en nuestra sucursal, o visítanos y pruébate tus prendas." }
+      { "titulo": "Envíos a todo el país y tienda física", "texto": "Recibe tu pedido en cualquier departamento, retíralo gratis en nuestra sucursal o visítanos y pruébate tus prendas." }
     ],
     "cierre": "Be fashionable, be Abrakadabra."
   },
 
   "retiroEnTienda": {
-    "titulo": "Retiro en tienda",
-    "introduccion": "Todas las compras en línea se retiran en nuestra sucursal, sin costo de envío.",
+    "titulo": "Envíos y retiro en tienda",
+    "introduccion": "Al pagar eliges cómo recibir tu pedido: te lo enviamos a cualquier parte de El Salvador por {costoEnvio}, o lo retiras gratis en nuestra sucursal.",
+    "envio": {
+      "titulo": "Envío a domicilio",
+      "parrafos": [
+        "Enviamos a los 14 departamentos por {costoEnvio}, que se suma al total de tu compra. El tiempo estimado de entrega es {tiempoEnvio}.",
+        "Al pagar, indica el departamento, el municipio y el distrito, tu dirección exacta y, si quieres, un punto de referencia. Mientras más detalles nos des, más rápido llega tu pedido.",
+        "Cuando tu pedido salga, lo verás en Mi cuenta › Mis pedidos como “En camino” y te contactaremos al teléfono que indicaste para coordinar la entrega."
+      ]
+    },
     "pasos": [
       { "titulo": "Haz tu pedido en línea", "texto": "Elige tus prendas, paga con tarjeta y recibe tu número de pedido (por ejemplo, ABK-000123)." },
       { "titulo": "Espera el aviso", "texto": "Cuando tu pedido esté listo, lo verás en Mi cuenta › Mis pedidos como “Listo para retirar”. También podemos avisarte por WhatsApp." },
@@ -46,7 +54,7 @@
     "secciones": [
       {
         "titulo": "Plazo para cambios",
-        "parrafos": ["Puedes solicitar un cambio dentro de los 7 días siguientes a la fecha en que retiraste tu pedido."]
+        "parrafos": ["Puedes solicitar un cambio dentro de los 7 días siguientes a la fecha en que retiraste o recibiste tu pedido. En los pedidos con envío, el costo de envío no es reembolsable."]
       },
       {
         "titulo": "Condiciones",
@@ -97,11 +105,12 @@
         ]
       },
       {
-        "titulo": "Retiro en tienda",
+        "titulo": "Envíos y retiro en tienda",
         "preguntas": [
-          { "pregunta": "¿Hacen envíos a domicilio?", "respuesta": "Por ahora todas las compras en línea se retiran en nuestra sucursal: {direccion}." },
-          { "pregunta": "¿Cuándo puedo pasar por mi pedido?", "respuesta": "Cuando aparezca como “Listo para retirar” en Mi cuenta › Mis pedidos. Nuestro horario es {horario}" },
-          { "pregunta": "¿Qué debo llevar?", "respuesta": "Tu número de pedido y tu DUI." }
+          { "pregunta": "¿Hacen envíos a domicilio?", "respuesta": "Sí, a todo El Salvador por {costoEnvio}. El costo se suma al total al momento de pagar y el tiempo estimado de entrega es {tiempoEnvio}." },
+          { "pregunta": "¿Qué datos necesito para el envío?", "respuesta": "El nombre y teléfono de quien recibe, el departamento, municipio y distrito, tu dirección exacta (colonia, calle o pasaje y número de casa) y, si quieres, un punto de referencia." },
+          { "pregunta": "¿Puedo retirar mi pedido sin pagar envío?", "respuesta": "Sí. Elige “Retiro en tienda” al pagar y pasa por él a {direccion} cuando aparezca como “Listo para retirar” en Mi cuenta › Mis pedidos. Nuestro horario es {horario}" },
+          { "pregunta": "¿Qué debo llevar al retirar?", "respuesta": "Tu número de pedido y tu DUI." }
         ]
       },
       {

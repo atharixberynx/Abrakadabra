@@ -7,7 +7,7 @@
 import { useCallback } from 'react';
 import content from './paginas-informativas.json';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
-import { formatWhatsapp } from '../lib/format.js';
+import { formatPrice, formatWhatsapp } from '../lib/format.js';
 
 export const pages = content;
 
@@ -22,7 +22,9 @@ export function useFillPlaceholders() {
         .replaceAll('{direccion}', info.fullAddress)
         // El horario va a mitad de frase ("en nuestro horario: lunes a viernes…"): empieza en minúscula
         .replaceAll('{horario}', `${lowerFirst(info.hoursText)}${info.hoursText.endsWith('.') ? '' : '.'}`)
-        .replaceAll('{whatsapp}', formatWhatsapp(info.whatsapp.number)),
+        .replaceAll('{whatsapp}', formatWhatsapp(info.whatsapp.number))
+        .replaceAll('{costoEnvio}', formatPrice(info.shipping.fee))
+        .replaceAll('{tiempoEnvio}', lowerFirst(info.shipping.time)),
     [info],
   );
 }

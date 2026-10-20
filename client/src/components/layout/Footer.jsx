@@ -10,7 +10,7 @@ import { StarIcon } from '../ui/StarIcon.jsx';
 
 // Páginas informativas (textos en content/paginas-informativas.json)
 const HELP_LINKS = [
-  { to: '/retiro-en-tienda', label: 'Retiro en tienda' },
+  { to: '/retiro-en-tienda', label: 'Envíos y retiro' },
   { to: '/politica-de-cambios', label: 'Cambios y devoluciones' },
   { to: '/guia-de-tallas', label: 'Guía de tallas' },
   { to: '/preguntas-frecuentes', label: 'Preguntas frecuentes' },

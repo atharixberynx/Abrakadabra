@@ -21,6 +21,7 @@ export const contentSchema = z.object({
   retiroEnTienda: z.object({
     titulo: text,
     introduccion: text,
+    envio: z.object({ titulo: text, parrafos: z.array(text).min(1) }).optional(),
     pasos: z.array(block).min(1),
     queLlevar: z.array(text).min(1),
     nota: z.string(),

@@ -3,7 +3,7 @@
  * de la sucursal (dirección, horario, WhatsApp) de Panel › Ajustes.
  */
 import { Link } from 'react-router-dom';
-import { Clock, IdCard, MapPin, Ruler, Store } from 'lucide-react';
+import { Clock, IdCard, MapPin, Ruler, Store, Truck } from 'lucide-react';
 import { pages, useFillPlaceholders } from '../../content/index.js';
 import { useStoreInfo } from '../../context/StoreInfoContext.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -46,9 +46,21 @@ export function PickupPage() {
   const info = useStoreInfo();
   const page = pages.retiroEnTienda;
   return (
-    <InfoLayout title={page.titulo} intro={fill(page.introduccion)} whatsappMessage="Hola, tengo una consulta sobre el retiro de mi pedido.">
+    <InfoLayout title={page.titulo} intro={fill(page.introduccion)} whatsappMessage="Hola, tengo una consulta sobre la entrega de mi pedido.">
+      {page.envio && info.shipping.enabled && (
+        <section>
+          <SectionTitle>{page.envio.titulo}</SectionTitle>
+          <div className="flex gap-4 rounded-card border border-lavender p-5 shadow-soft">
+            <Truck className="mt-1 size-6 shrink-0 text-brand" aria-hidden="true" />
+            <div className="space-y-3 leading-relaxed text-ink/85">
+              {page.envio.parrafos.map((p) => <p key={p}>{fill(p)}</p>)}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section>
-        <SectionTitle>¿Cómo funciona?</SectionTitle>
+        <SectionTitle>Retiro en tienda: ¿cómo funciona?</SectionTitle>
         <ol className="space-y-4">
           {page.pasos.map((step, i) => (
             <li key={step.titulo} className="flex gap-4">
@@ -76,7 +88,7 @@ export function PickupPage() {
       </section>
 
       <section>
-        <SectionTitle>¿Qué debo llevar?</SectionTitle>
+        <SectionTitle>¿Qué debo llevar al retirar?</SectionTitle>
         <ul className="space-y-2">
           {page.queLlevar.map((item) => (
             <li key={item} className="flex gap-3 text-ink/85"><IdCard className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" /> {fill(item)}</li>

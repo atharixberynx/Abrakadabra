@@ -115,7 +115,7 @@ export function MobileDrawer({ open, onClose }) {
                   <Link to="/#visitanos" onClick={onClose} className={itemClass}>Visítanos</Link>
                 </li>
                 <li className="my-2 border-t border-lavender" />
-                <li><Link to="/retiro-en-tienda" onClick={onClose} className={itemClass}>Retiro en tienda</Link></li>
+                <li><Link to="/retiro-en-tienda" onClick={onClose} className={itemClass}>Envíos y retiro</Link></li>
                 <li><Link to="/guia-de-tallas" onClick={onClose} className={itemClass}>Guía de tallas</Link></li>
                 <li><Link to="/preguntas-frecuentes" onClick={onClose} className={itemClass}>Preguntas frecuentes</Link></li>
               </ul>

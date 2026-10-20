@@ -46,9 +46,9 @@ Proyecto académico de Desarrollo de Software (stack MERN), pensado para que la 
 - Catálogo con filtros por categoría, talla, color y precio; orden por novedad o precio; búsqueda sin tildes; "Cargar más". Los filtros quedan en la URL para compartir el enlace.
 - Página de producto: al elegir un color se muestran las fotos de ese color; las tallas sin existencias aparecen deshabilitadas; cantidad limitada al stock; consulta por WhatsApp con el producto, color y talla escritos.
 - Carrito sin cuenta (se guarda en el navegador) y revalidado con el servidor. **Para pagar se pide cuenta**, y luego se vuelve al checkout con el carrito intacto.
-- Checkout con retiro en tienda y pago con tarjeta en **modo de prueba**. Confirmación con número de pedido (`ABK-000123`) e instrucciones de retiro.
+- Checkout con **retiro en tienda gratis o envío a todo El Salvador** (costo editable, dirección por departamento, municipio y distrito) y pago con tarjeta en **modo de prueba**. Confirmación con número de pedido (`ABK-000123`).
 - Mi cuenta: "Mis pedidos" con su estado, datos personales y cambio de contraseña. "Recuérdame" en el inicio de sesión.
-- Páginas informativas: Sobre nosotras, Retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas.
+- Páginas informativas: Sobre nosotras, Envíos y retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas.
 
 **Panel administrativo (`/admin`)**
 
@@ -213,9 +213,13 @@ Los valores sensibles van en archivos `.env`, que **nunca** se suben al reposito
 
 1. La clienta arma su carrito sin cuenta. Al abrirlo, se revisan con el servidor los precios actuales y las existencias.
 2. Para pagar inicia sesión o se registra; vuelve al checkout con el carrito intacto.
-3. Entrega única: **retiro en tienda**, sin costo de envío.
+3. Elige la entrega:
+   - **Retiro en tienda**, gratis.
+   - **Envío a domicilio** a todo El Salvador. El costo se configura en Panel › Ajustes ($3.50 por defecto) y se suma al total.
+
+   Para el envío se piden el nombre y teléfono de quien recibe, el departamento, el municipio y distrito (listas oficiales de 2024), la dirección exacta y un punto de referencia opcional. La última dirección usada se propone en la siguiente compra.
 4. Pago con tarjeta en **modo de prueba**: no se realiza ningún cargo real.
-5. Confirmación con el número de pedido y las indicaciones de retiro. El pedido aparece en **Mi cuenta › Mis pedidos**.
+5. Confirmación con el número de pedido y las indicaciones de retiro o de envío. El pedido aparece en **Mi cuenta › Mis pedidos**.
 
 ### Tarjetas de prueba
 
@@ -228,7 +232,7 @@ Los valores sensibles van en archivos `.env`, que **nunca** se suben al reposito
 
 Usa cualquier nombre, una fecha futura (MM/AA) y cualquier CVV de 3 dígitos. El checkout tiene un botón **"Usar tarjeta de prueba"**.
 
-**Cómo se protege la compra:** el total lo calcula siempre el servidor; el stock se descuenta en una transacción con la condición `stock >= cantidad` (dos compras simultáneas de la última unidad no pueden completarse ambas); si el pago se rechaza, el stock vuelve; solo se guardan la marca y los últimos 4 dígitos de la tarjeta; un doble clic no crea dos pedidos.
+**Cómo se protege la compra:** el total (productos + envío) lo calcula siempre el servidor; si el costo de envío cambia mientras la clienta paga, se le avisa en vez de cobrar otro monto; el stock se descuenta en una transacción con la condición `stock >= cantidad` (dos compras simultáneas de la última unidad no pueden completarse ambas); si el pago se rechaza, el stock vuelve; solo se guardan la marca y los últimos 4 dígitos de la tarjeta; un doble clic no crea dos pedidos.
 
 **Pasar a Wompi El Salvador:** el pago usa un adaptador en `server/src/services/payments/`. `wompiProvider.js` tiene los pasos (TODO) para integrar **Wompi El Salvador** (<https://docs.wompi.sv>, no confundir con Wompi Colombia) y se activa con `PAYMENT_PROVIDER=wompi`.
 
@@ -240,15 +244,20 @@ Entra con una cuenta admin y ve a **`/admin`** (o al botón dorado "Panel admin"
 
 | Sección    | Qué se puede hacer |
 | ---------- | ------------------ |
-| Resumen    | Pedidos de hoy, pendientes de retiro, ventas del mes (vs. el mismo tramo del mes pasado), poco stock |
+| Resumen    | Pedidos de hoy, pendientes de entregar (por preparar, para retiro, en camino), ventas del mes (vs. el mismo tramo del mes pasado), poco stock |
 | Inicio     | Banners del carrusel: imagen para computadora y celular, texto opcional encima, orden y visibilidad |
 | Productos  | Buscar y filtrar, mostrar u ocultar, crear, editar y eliminar |
 | Categorías | Crear, renombrar, ordenar, mostrar u ocultar e imagen del mosaico de inicio |
-| Pedidos    | Filtrar por estado, fechas o búsqueda; detalle; marcar listo o entregado, o cancelar (devuelve stock); avisar por WhatsApp |
+| Pedidos    | Filtrar por estado, tipo de entrega, fechas o búsqueda; detalle con la dirección de envío y botón para copiarla; marcar listo, enviado o entregado, o cancelar (devuelve stock); avisar por WhatsApp |
 | Clientas   | Lista de solo lectura con resumen y pedidos de cada clienta |
-| Ajustes    | Mensajes de la barra de anuncio, WhatsApp, redes, dirección, horario y enlace "Cómo llegar" |
+| Ajustes    | Mensajes de la barra de anuncio, WhatsApp, redes, dirección, horario, enlace "Cómo llegar" y **envío a domicilio** (activar o pausar, costo y tiempo estimado) |
 
-**Estados de un pedido:** por preparar (`pagado`) → `listo para retiro` → `entregado`, o `cancelado`. Entregado y cancelado son finales.
+**Estados de un pedido:**
+- Retiro en tienda: por preparar (`pagado`) → `listo para retiro` → `entregado`.
+- Envío: por preparar (`pagado`) → `en camino` (`enviado`) → `entregado`.
+- Cualquier pedido se puede `cancelar` antes de entregarse. Entregado y cancelado son finales.
+
+**Departamentos y municipios:** la lista está en `server/src/data/elSalvador.js` y su copia idéntica `client/src/data/elSalvador.js`. Si cambias una, copia la otra; una prueba avisa si no coinciden.
 
 **Crear o editar un producto:** información y precio (con precio anterior si está en oferta) → colores (paleta rápida o personalizados) y tallas → **matriz de existencias** color × talla (la casilla indica si la combinación se vende; las casillas de fila y columna activan o quitan todo un color o una talla) → **fotos** (hasta 8, arrastrar y soltar, la primera es la principal, cada una ligada a su color) → guardar.
 
@@ -264,17 +273,17 @@ Si la subida falla con **"le faltan permisos" (403)**, la API Key fue creada con
 
 ## Editar los textos de las páginas informativas
 
-Los textos de **Sobre nosotras, Retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas** están en **un solo archivo**: [`client/src/content/paginas-informativas.json`](client/src/content/paginas-informativas.json). Se pueden cambiar sin tocar el código.
+Los textos de **Sobre nosotras, Envíos y retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas** están en **un solo archivo**: [`client/src/content/paginas-informativas.json`](client/src/content/paginas-informativas.json). Se pueden cambiar sin tocar el código.
 
 1. Cambia solo el texto **entre comillas** a la derecha de los dos puntos. No borres comillas, comas ni corchetes.
 2. Para agregar un párrafo, pregunta o paso, copia uno existente y sepáralo del anterior con una coma.
-3. Usa estos marcadores, que se rellenan solos con lo guardado en **Panel › Ajustes**: `{tienda}`, `{direccion}`, `{horario}` y `{whatsapp}`.
+3. Usa estos marcadores, que se rellenan solos con lo guardado en **Panel › Ajustes**: `{tienda}`, `{direccion}`, `{horario}`, `{whatsapp}`, `{costoEnvio}` y `{tiempoEnvio}`.
 4. Revisa que quedó bien escrito con `npm run check:content` (dentro de `client/`). Si algo falla, dice qué falta o en qué línea. Esta revisión también corre sola antes de publicar.
 
 - `"borrador": true` en la política de cambios muestra el aviso *"Borrador: por validar con la marca"*, **solo en desarrollo**. Cámbialo a `false` cuando la marca apruebe el texto.
 - `"porValidar": true` en la guía de tallas muestra la nota de medidas de referencia. Cámbialo a `false` cuando estén confirmadas.
 
-> Los datos que cambian seguido (anuncios, WhatsApp, dirección, horario, mapa y redes) se editan en **Panel › Ajustes** y se ven al instante.
+> Los datos que cambian seguido (anuncios, WhatsApp, dirección, horario, mapa, redes y envíos) se editan en **Panel › Ajustes** y se ven al instante.
 
 ---
 
@@ -420,6 +429,6 @@ npm run seed:catalog -- --yes   # opcional: solo si quieres los datos de ejemplo
 
 - Recuperación de contraseña por correo (usar la API HTTP de Brevo: Render gratis bloquea SMTP).
 - Integración real con Wompi El Salvador (<https://docs.wompi.sv>).
-- Envíos a domicilio como segundo método de entrega.
+- Costos de envío distintos por departamento o envío gratis desde cierto monto.
 - Correos o mensajes automáticos de "pedido listo para retirar".
 - Reemplazar los datos e imágenes de ejemplo por el catálogo y las fotos reales de la marca, y validar la política de cambios y la guía de tallas.

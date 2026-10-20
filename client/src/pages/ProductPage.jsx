@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { Check, MessageCircle, Pencil, Store } from 'lucide-react';
+import { Check, MessageCircle, Pencil, Store, Truck } from 'lucide-react';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { ProductGallery } from '../components/product/ProductGallery.jsx';
 import { Price } from '../components/product/Price.jsx';
@@ -18,7 +18,7 @@ import { StoreLoader } from '../components/ui/StoreLoader.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useFetch } from '../hooks/useFetch.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
-import { isOnSale } from '../lib/format.js';
+import { formatPrice, isOnSale } from '../lib/format.js';
 import { imagesForColor } from '../lib/images.js';
 import { useCartStore } from '../store/cartStore.js';
 
@@ -189,11 +189,13 @@ function ProductDetail({ product }) {
         </Button>
 
         <div className="flex gap-3 rounded-xl border border-lavender p-4 text-sm">
-          <Store className="size-5 shrink-0 text-brand" aria-hidden="true" />
+          {store.shipping.enabled ? <Truck className="size-5 shrink-0 text-brand" aria-hidden="true" /> : <Store className="size-5 shrink-0 text-brand" aria-hidden="true" />}
           <div>
-            <p className="font-semibold text-ink">Disponible para retiro en tienda</p>
+            <p className="font-semibold text-ink">
+              {store.shipping.enabled ? `Envío a todo El Salvador por ${formatPrice(store.shipping.fee)}` : 'Disponible para retiro en tienda'}
+            </p>
             <p className="mt-0.5 text-ink/80">
-              {store.address.line2}, {store.address.city}.{' '}
+              {store.shipping.enabled ? 'O retíralo gratis en' : ''} {store.address.line2}, {store.address.city}.{' '}
               <Link to="/retiro-en-tienda" className="text-brand underline underline-offset-4">
                 ¿Cómo funciona?
               </Link>
@@ -245,7 +247,7 @@ export default function ProductPage() {
   const { data, loading, error, slow } = useFetch(`/products/${slug}`);
   const product = data?.product;
   usePageTitle(product?.name ?? (error ? 'Producto no encontrado' : 'Cargando…'), {
-    description: product ? `${product.description} Tallas ${product.sizes.join(', ')}. Retira en tienda en San Salvador.` : undefined,
+    description: product ? `${product.description} Tallas ${product.sizes.join(', ')}. Envíos a todo El Salvador o retiro en tienda.` : undefined,
     image: product?.images?.[0]?.url,
   });
 

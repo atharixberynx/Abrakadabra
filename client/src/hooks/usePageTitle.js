@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { store } from '../config/store.js';
 
 const DEFAULT_DESCRIPTION =
-  'Moda femenina casual chic y de oficina, tallas S a XL, varios colores por modelo y precios accesibles. Compra en línea y retira en tienda en San Salvador.';
+  'Moda femenina casual chic y de oficina, tallas S a XL, varios colores por modelo y precios accesibles. Compra en línea con envío a todo El Salvador o retiro en tienda.';
 
 function setMeta(attribute, key, content) {
   let tag = document.head.querySelector(`meta[${attribute}="${key}"]`);
