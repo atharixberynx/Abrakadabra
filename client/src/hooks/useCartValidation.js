@@ -3,7 +3,7 @@
  * Aplica sola los ajustes simples (precio nuevo, cantidad máxima) y devuelve los avisos
  * de cada línea para mostrarlos.
  *
- *   const { status, result, notices } = useCartValidation();
+ *   const { status, result, notices, revalidate } = useCartValidation();
  *   status: 'idle' | 'checking' | 'ready' | 'error'
  *   notices: avisos que se quedan visibles (precio que cambió, cantidad ajustada)
  */
@@ -23,6 +23,7 @@ export function useCartValidation() {
   const applyValidation = useCartStore((s) => s.applyValidation);
   const [state, setState] = useState({ status: 'idle', result: null, error: null });
   const [notices, setNotices] = useState({});
+  const [round, setRound] = useState(0); // revalidate() fuerza otra revisión (p. ej. si cambió el costo de envío)
   // Firma del carrito: solo se revalida si cambian productos, variantes o cantidades
   const signature = items.map((i) => `${i.key}:${i.quantity}`).join(',');
 
@@ -56,12 +57,13 @@ export function useCartValidation() {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [signature, applyValidation]);
+  }, [signature, round, applyValidation]);
 
+  const revalidate = () => setRound((r) => r + 1);
   if (items.length === 0) {
-    return { status: 'ready', result: { ok: false, lines: [], total: 0 }, error: null, issuesByKey: new Map(), blocked: false, notices: [] };
+    return { status: 'ready', result: { ok: false, lines: [], total: 0 }, error: null, issuesByKey: new Map(), blocked: false, notices: [], revalidate };
   }
   const issuesByKey = new Map((state.result?.lines ?? []).map((l) => [l.key, l]));
   const blocked = (state.result?.lines ?? []).some((l) => l.issues.some((i) => BLOCKING_ISSUES.includes(i)));
-  return { ...state, issuesByKey, blocked, notices: Object.values(notices) };
+  return { ...state, issuesByKey, blocked, notices: Object.values(notices), revalidate };
 }

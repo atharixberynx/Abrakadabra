@@ -1,7 +1,7 @@
 /**
- * Panel › Ajustes: mensajes de la barra de anuncio, WhatsApp, redes, dirección, horario
- * y enlace "Cómo llegar". Los cambios se ven de inmediato en la tienda y los pedidos
- * nuevos usan la dirección y el horario vigentes.
+ * Panel › Ajustes: mensajes de la barra de anuncio, WhatsApp, redes, dirección, horario,
+ * enlace "Cómo llegar" y envío a domicilio. Los cambios se ven de inmediato en la tienda y los
+ * pedidos nuevos usan la dirección, el horario y el costo de envío vigentes.
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -60,7 +60,13 @@ function SettingsForm({ initial }) {
     setErrors({});
     try {
       const { settings } = await apiFetch('/admin/settings', { method: 'PUT', body: form });
-      setForm({ ...settings, whatsappNumber: formatWhatsapp(settings.whatsappNumber) });
+      setForm((f) => ({
+        ...f,
+        ...settings,
+        address: { line2: '', ...settings.address },
+        whatsappNumber: formatWhatsapp(settings.whatsappNumber),
+        shippingFee: settings.shippingFee.toFixed(2),
+      }));
       setDirty(false);
       clearFetchCache(); // la tienda (también en otras pestañas) se actualiza al instante
       toast.success('Ajustes guardados');
@@ -181,6 +187,50 @@ function SettingsForm({ initial }) {
         </div>
       </Card>
 
+      <Card title="Envío a domicilio" description="Costo que se suma al total cuando la clienta elige envío. Los pedidos ya pagados conservan el costo con el que se compraron.">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={form.shippingEnabled}
+            onChange={(e) => set({ shippingEnabled: e.target.checked })}
+            className="mt-0.5 size-5 shrink-0 accent-brand"
+          />
+          <span className="text-sm">
+            <span className="font-medium text-ink">Ofrecer envío a domicilio</span>
+            <span className="block text-ink/70">Si lo desactivas, el checkout solo permite retiro en tienda (útil si la mensajería se pausa).</span>
+          </span>
+        </label>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Field label="Costo de envío (USD)" hint="El mismo costo para todo el país." error={errors.shippingFee}>
+            <div className="relative">
+              <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-ink/70" aria-hidden="true">$</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                min="0"
+                max="50"
+                step="0.01"
+                value={form.shippingFee}
+                onChange={(e) => set({ shippingFee: e.target.value })}
+                onBlur={(e) => e.target.value !== '' && set({ shippingFee: Number(e.target.value).toFixed(2) })}
+                disabled={!form.shippingEnabled}
+                className={`${inputClass} pl-7 disabled:bg-lavender/50 ${borderFor(errors.shippingFee)}`}
+              />
+            </div>
+          </Field>
+          <Field label="Tiempo estimado de entrega" hint="Se muestra en el checkout y en el pedido." error={errors.shippingTime}>
+            <input
+              value={form.shippingTime}
+              onChange={(e) => set({ shippingTime: e.target.value })}
+              maxLength={80}
+              placeholder="De 2 a 4 días hábiles"
+              disabled={!form.shippingEnabled}
+              className={`${inputClass} disabled:bg-lavender/50 ${borderFor(errors.shippingTime)}`}
+            />
+          </Field>
+        </div>
+      </Card>
+
       <Card title="Otros contenidos de la tienda">
         <ul className="space-y-3 text-sm text-ink/85">
           <li className="flex gap-3">
@@ -190,7 +240,7 @@ function SettingsForm({ initial }) {
           <li className="flex gap-3">
             <FileText className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
             <span>
-              Los textos de <strong>Sobre nosotras, Retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas</strong> están en
+              Los textos de <strong>Sobre nosotras, Envíos y retiro en tienda, Cambios y devoluciones, Preguntas frecuentes y Guía de tallas</strong> están en
               el archivo <code className="rounded bg-lavender px-1 text-xs">client/src/content/paginas-informativas.json</code> (ver README).
             </span>
           </li>
@@ -228,6 +278,9 @@ export default function SettingsPage() {
             mapsUrl: data.settings.mapsUrl,
             instagramUrl: data.settings.instagramUrl ?? '',
             facebookUrl: data.settings.facebookUrl ?? '',
+            shippingEnabled: data.settings.shippingEnabled ?? true,
+            shippingFee: (data.settings.shippingFee ?? 3.5).toFixed(2),
+            shippingTime: data.settings.shippingTime ?? '',
           }}
         />
       )}

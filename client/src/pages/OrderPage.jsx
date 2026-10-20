@@ -4,7 +4,7 @@
  */
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { CheckCircle2, ClipboardList, MapPin } from 'lucide-react';
+import { CheckCircle2, ClipboardList, MapPin, Truck } from 'lucide-react';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { StarIcon } from '../components/ui/StarIcon.jsx';
@@ -14,7 +14,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import { BRAND_LABELS } from '../lib/card.js';
 import { formatPrice } from '../lib/format.js';
 import { imageUrl } from '../lib/images.js';
-import { ORDER_STATUS, ORDER_STEPS, formatDate } from '../lib/orders.js';
+import { ORDER_STATUS, deliveryMethodOf, formatDate, orderSteps, shippingAddressText } from '../lib/orders.js';
 import { useCartStore } from '../store/cartStore.js';
 
 export function StatusBadge({ status }) {
@@ -22,12 +22,13 @@ export function StatusBadge({ status }) {
   return <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${info.className}`}>{info.label}</span>;
 }
 
-function Timeline({ status }) {
+function Timeline({ status, method }) {
   if (status === 'cancelado') return <p className="text-sm text-danger">Este pedido fue cancelado.</p>;
-  const current = ORDER_STEPS.findIndex((s) => s.status === status);
+  const steps = orderSteps(method);
+  const current = steps.findIndex((s) => s.status === status);
   return (
     <ol className="flex items-center gap-2" aria-label="Progreso del pedido">
-      {ORDER_STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const done = i <= current;
         return (
           <li key={step.status} className="flex flex-1 items-center gap-2">
@@ -38,7 +39,7 @@ function Timeline({ status }) {
               {step.label}
               <span className="sr-only">{done ? ' (completado)' : ' (pendiente)'}</span>
             </span>
-            {i < ORDER_STEPS.length - 1 && <span className={`h-0.5 flex-1 ${i < current ? 'bg-brand' : 'bg-lavender'}`} aria-hidden="true" />}
+            {i < steps.length - 1 &&<span className={`h-0.5 flex-1 ${i < current ? 'bg-brand' : 'bg-lavender'}`} aria-hidden="true" />}
           </li>
         );
       })}
@@ -74,6 +75,11 @@ export default function OrderPage() {
     );
   }
 
+  const method = deliveryMethodOf(order);
+  const isShipping = method === 'envio';
+  const shippingFee = order.delivery?.fee ?? 0;
+  const subtotal = order.subtotal ?? order.total;
+
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-10">
       {justPlaced ? (
@@ -82,17 +88,27 @@ export default function OrderPage() {
           <h1 id="gracias" className="mt-3 flex items-center justify-center gap-2 text-3xl text-brand-dark">
             ¡Gracias por tu compra! <StarIcon className="size-5 text-gold" />
           </h1>
-          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink">
-            Tu pedido <strong className="text-brand-dark">{order.orderNumber}</strong> fue confirmado. Puedes retirarlo en nuestra
-            sucursal: {order.pickup.address}. Horario: {order.pickup.hours}
-            {/* "12:00 m." ya termina en punto: no se repite */}
-            {order.pickup.hours.endsWith('.') ? '' : '.'} Presenta tu número de pedido y tu DUI al retirar.
-          </p>
+          {isShipping ? (
+            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink">
+              Tu pedido <strong className="text-brand-dark">{order.orderNumber}</strong> fue confirmado. Lo enviaremos a{' '}
+              {shippingAddressText(order.delivery)}. Tiempo estimado: {order.delivery.estimatedTime?.toLowerCase()}. Te avisaremos al{' '}
+              <span className="whitespace-nowrap">{order.delivery.phone}</span> cuando vaya en camino.
+            </p>
+          ) : (
+            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink">
+              Tu pedido <strong className="text-brand-dark">{order.orderNumber}</strong> fue confirmado. Puedes retirarlo en nuestra
+              sucursal: {order.pickup.address}. Horario: {order.pickup.hours}
+              {/* "12:00 m." ya termina en punto: no se repite */}
+              {order.pickup.hours.endsWith('.') ? '' : '.'} Presenta tu número de pedido y tu DUI al retirar.
+            </p>
+          )}
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button as="a" href={store.maps.directionsUrl} target="_blank" rel="noopener noreferrer">
-              <MapPin className="size-4" /> Cómo llegar
-            </Button>
-            <Button as={Link} to="/cuenta" variant="secondary">
+            {!isShipping && (
+              <Button as="a" href={store.maps.directionsUrl} target="_blank" rel="noopener noreferrer">
+                <MapPin className="size-4" /> Cómo llegar
+              </Button>
+            )}
+            <Button as={Link} to="/cuenta" variant={isShipping ? 'primary' : 'secondary'}>
               <ClipboardList className="size-4" /> Ver mis pedidos
             </Button>
           </div>
@@ -110,9 +126,12 @@ export default function OrderPage() {
 
       <section className="rounded-card border border-lavender p-5 shadow-soft sm:p-6">
         <h2 className="mb-4 text-lg text-brand-dark">Estado</h2>
-        <Timeline status={order.status} />
+        <Timeline status={order.status} method={method} />
         {order.status === 'listo_para_retiro' && (
           <p className="mt-4 rounded-xl bg-gold/20 px-4 py-3 text-sm text-ink">¡Tu pedido está listo! Pasa por él con tu número de pedido y tu DUI.</p>
+        )}
+        {order.status === 'enviado' && (
+          <p className="mt-4 rounded-xl bg-gold/20 px-4 py-3 text-sm text-ink">¡Tu pedido va en camino! Te contactaremos al {order.delivery.phone} para la entrega.</p>
         )}
       </section>
 
@@ -131,17 +150,31 @@ export default function OrderPage() {
           ))}
         </ul>
         <dl className="mt-3 space-y-1 border-t border-lavender pt-3 text-sm">
-          <div className="flex justify-between"><dt className="text-ink/80">Envío</dt><dd>Gratis · retiro en tienda</dd></div>
+          <div className="flex justify-between"><dt className="text-ink/80">Subtotal</dt><dd>{formatPrice(subtotal)}</dd></div>
+          <div className="flex justify-between">
+            <dt className="text-ink/80">Envío</dt>
+            <dd>{isShipping ? formatPrice(shippingFee) : 'Gratis · retiro en tienda'}</dd>
+          </div>
           <div className="flex justify-between text-lg"><dt className="font-semibold">Total pagado</dt><dd className="font-semibold text-brand">{formatPrice(order.total)}</dd></div>
         </dl>
       </section>
 
       <section className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-card border border-lavender p-5 shadow-soft">
-          <h2 className="mb-2 text-lg text-brand-dark">Retiro en tienda</h2>
-          <p className="text-sm text-ink/85">{order.pickup.address}</p>
-          <p className="mt-1 text-sm text-ink/80 first-letter:uppercase">{order.pickup.hours}</p>
-        </div>
+        {isShipping ? (
+          <div className="rounded-card border border-lavender p-5 shadow-soft">
+            <h2 className="mb-2 flex items-center gap-2 text-lg text-brand-dark"><Truck className="size-5 text-brand" aria-hidden="true" /> Envío a domicilio</h2>
+            <p className="text-sm font-medium text-ink">{order.delivery.recipientName} · {order.delivery.phone}</p>
+            <p className="mt-1 text-sm text-ink/85">{shippingAddressText(order.delivery)}</p>
+            {order.delivery.reference && <p className="mt-1 text-sm text-ink/80">Referencia: {order.delivery.reference}</p>}
+            {order.delivery.estimatedTime && <p className="mt-2 text-xs text-ink/70">Tiempo estimado: {order.delivery.estimatedTime.toLowerCase()}</p>}
+          </div>
+        ) : (
+          <div className="rounded-card border border-lavender p-5 shadow-soft">
+            <h2 className="mb-2 text-lg text-brand-dark">Retiro en tienda</h2>
+            <p className="text-sm text-ink/85">{order.pickup.address}</p>
+            <p className="mt-1 text-sm text-ink/80 first-letter:uppercase">{order.pickup.hours}</p>
+          </div>
+        )}
         <div className="rounded-card border border-lavender p-5 shadow-soft">
           <h2 className="mb-2 text-lg text-brand-dark">Pago</h2>
           <p className="text-sm text-ink/85">

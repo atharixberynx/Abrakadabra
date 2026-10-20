@@ -1,10 +1,10 @@
 /**
- * Panel › Detalle de pedido: clienta, productos, pago, historial y cambio de estado.
+ * Panel › Detalle de pedido: clienta, productos, entrega, pago, historial y cambio de estado.
  * Cancelar devuelve las prendas al inventario (lo hace el servidor).
  */
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Mail, MessageCircle, Phone } from 'lucide-react';
+import { ArrowLeft, Copy, Mail, MessageCircle, Phone } from 'lucide-react';
 import { Button } from '../../components/ui/Button.jsx';
 import { clearFetchCache, useFetch } from '../../hooks/useFetch.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
@@ -12,9 +12,9 @@ import { apiFetch } from '../../lib/api.js';
 import { BRAND_LABELS } from '../../lib/card.js';
 import { formatPrice } from '../../lib/format.js';
 import { imageUrl } from '../../lib/images.js';
-import { ADMIN_ORDER_STATUS, NEXT_ACTIONS, formatDate } from '../../lib/orders.js';
+import { ADMIN_ORDER_STATUS, deliveryMethodOf, formatDate, nextActions, shippingAddressText } from '../../lib/orders.js';
 import { confirmDialog, toast } from '../../store/uiStore.js';
-import { AdminStatusBadge } from '../components/AdminStatusBadge.jsx';
+import { AdminStatusBadge, DeliveryBadge } from '../components/AdminStatusBadge.jsx';
 import { Card, ErrorState, LoadingState } from '../components/AdminUi.jsx';
 
 const CONFIRMATIONS = {
@@ -22,6 +22,11 @@ const CONFIRMATIONS = {
     title: '¿Marcar como listo para retiro?',
     message: 'La clienta verá en "Mis pedidos" que ya puede pasar por su pedido.',
     confirmLabel: 'Sí, está listo',
+  },
+  enviado: {
+    title: '¿Marcar como enviado?',
+    message: 'La clienta verá en "Mis pedidos" que su pedido va en camino.',
+    confirmLabel: 'Sí, ya salió',
   },
   entregado: {
     title: '¿Marcar como entregado?',
@@ -37,13 +42,63 @@ const CONFIRMATIONS = {
   },
 };
 
-/** Enlace de WhatsApp para avisar a la clienta (teléfono salvadoreño 7777-7777) */
+/**
+ * Enlace de WhatsApp para avisar a la clienta (teléfono salvadoreño 7777-7777).
+ * En los envíos se escribe al teléfono de contacto de la entrega.
+ */
 function whatsappToCustomer(order) {
-  const digits = (order.customer.phone ?? '').replace(/\D/g, '');
+  const isShipping = deliveryMethodOf(order) === 'envio';
+  const digits = ((isShipping ? order.delivery.phone : order.customer.phone) ?? '').replace(/\D/g, '');
   if (digits.length !== 8) return null;
-  const firstName = order.customer.name.split(' ')[0];
-  const message = `Hola ${firstName}, tu pedido ${order.orderNumber} de Abrakadabra Fashion Shop ya está listo para retirar en ${order.pickup.address}. Horario: ${order.pickup.hours} Presenta tu número de pedido y tu DUI. ¡Te esperamos!`;
+  const firstName = (isShipping ? order.delivery.recipientName : order.customer.name).split(' ')[0];
+  const message = isShipping
+    ? `Hola ${firstName}, tu pedido ${order.orderNumber} de Abrakadabra Fashion Shop ya va en camino a ${shippingAddressText(order.delivery)}. Te contactaremos para la entrega. ¡Gracias por tu compra!`
+    : `Hola ${firstName}, tu pedido ${order.orderNumber} de Abrakadabra Fashion Shop ya está listo para retirar en ${order.pickup.address}. Horario: ${order.pickup.hours} Presenta tu número de pedido y tu DUI. ¡Te esperamos!`;
   return `https://wa.me/503${digits}?text=${encodeURIComponent(message)}`;
+}
+
+/** Dirección completa para pegarla en el mensaje a la mensajería */
+function shippingLabel(order) {
+  const d = order.delivery;
+  return [
+    `Pedido ${order.orderNumber}`,
+    `Recibe: ${d.recipientName} · ${d.phone}`,
+    `Dirección: ${shippingAddressText(d)}`,
+    d.reference && `Referencia: ${d.reference}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function ShippingCard({ order }) {
+  const d = order.delivery;
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(shippingLabel(order));
+      toast.success('Dirección copiada');
+    } catch {
+      toast.error('No se pudo copiar. Selecciona el texto y cópialo a mano.');
+    }
+  };
+  return (
+    <Card title="Envío a domicilio">
+      <dl className="space-y-2 text-sm">
+        <div><dt className="text-ink/70">Recibe</dt><dd className="font-medium text-ink">{d.recipientName}</dd></div>
+        <div>
+          <dt className="text-ink/70">Teléfono</dt>
+          <dd><a href={`tel:+503${d.phone.replace(/\D/g, '')}`} className="text-brand hover:underline">{d.phone}</a></dd>
+        </div>
+        <div><dt className="text-ink/70">Departamento</dt><dd className="text-ink">{d.department}</dd></div>
+        <div><dt className="text-ink/70">Municipio · distrito</dt><dd className="text-ink">{d.municipality} · {d.district}</dd></div>
+        <div><dt className="text-ink/70">Dirección</dt><dd className="text-ink">{d.address}</dd></div>
+        {d.reference && <div><dt className="text-ink/70">Referencia</dt><dd className="text-ink">{d.reference}</dd></div>}
+        <div><dt className="text-ink/70">Costo cobrado</dt><dd className="text-ink">{formatPrice(d.fee)}{d.estimatedTime && ` · ${d.estimatedTime.toLowerCase()}`}</dd></div>
+      </dl>
+      <Button variant="secondary" size="sm" className="mt-4 w-full" onClick={copy}>
+        <Copy className="size-4" /> Copiar datos de envío
+      </Button>
+    </Card>
+  );
 }
 
 export default function OrderDetailPage() {
@@ -72,9 +127,10 @@ export default function OrderDetailPage() {
     }
   };
 
-  const actions = NEXT_ACTIONS[order.status] ?? [];
+  const actions = nextActions(order);
   const whatsapp = whatsappToCustomer(order);
   const pieces = order.items.reduce((n, i) => n + i.quantity, 0);
+  const isShipping = deliveryMethodOf(order) === 'envio';
 
   return (
     <>
@@ -86,7 +142,10 @@ export default function OrderDetailPage() {
           <h1 className="flex flex-wrap items-center gap-3 text-2xl text-brand-dark sm:text-3xl">
             {order.orderNumber} <AdminStatusBadge status={order.status} />
           </h1>
-          <p className="mt-1 text-sm text-ink/80">Realizado el {formatDate(order.createdAt)}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-ink/80">
+            Realizado el {formatDate(order.createdAt)} ·
+            <DeliveryBadge method={deliveryMethodOf(order)} />
+          </p>
         </div>
         {actions.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -114,10 +173,17 @@ export default function OrderDetailPage() {
                 </li>
               ))}
             </ul>
-            <div className="mt-3 flex justify-between border-t border-lavender pt-3 text-lg">
-              <span className="font-semibold">Total</span>
-              <span className="font-semibold tabular-nums text-brand">{formatPrice(order.total)}</span>
-            </div>
+            <dl className="mt-3 space-y-1 border-t border-lavender pt-3 text-sm">
+              <div className="flex justify-between"><dt className="text-ink/80">Subtotal</dt><dd className="tabular-nums">{formatPrice(order.subtotal ?? order.total)}</dd></div>
+              <div className="flex justify-between">
+                <dt className="text-ink/80">{isShipping ? 'Envío a domicilio' : 'Retiro en tienda'}</dt>
+                <dd className="tabular-nums">{isShipping ? formatPrice(order.delivery.fee) : 'Gratis'}</dd>
+              </div>
+              <div className="flex justify-between text-lg">
+                <dt className="font-semibold">Total</dt>
+                <dd className="font-semibold tabular-nums text-brand">{formatPrice(order.total)}</dd>
+              </div>
+            </dl>
           </Card>
 
           <Card title="Historial">
@@ -148,7 +214,7 @@ export default function OrderDetailPage() {
                 </li>
               )}
             </ul>
-            {['pagado', 'listo_para_retiro'].includes(order.status) &&
+            {['pagado', 'listo_para_retiro', 'enviado'].includes(order.status) &&
               (whatsapp ? (
                 <Button as="a" href={whatsapp} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm" className="mt-4 w-full">
                   <MessageCircle className="size-4" /> Avisar por WhatsApp
@@ -158,7 +224,7 @@ export default function OrderDetailPage() {
                   <Button variant="secondary" size="sm" className="w-full" disabled>
                     <MessageCircle className="size-4" /> Avisar por WhatsApp
                   </Button>
-                  <p className="mt-1.5 text-xs text-ink/70">Esta cuenta no tiene un teléfono de 8 dígitos registrado. Escríbele por correo.</p>
+                  <p className="mt-1.5 text-xs text-ink/70">No hay un teléfono de 8 dígitos registrado. Escríbele por correo.</p>
                 </div>
               ))}
           </Card>
@@ -174,10 +240,14 @@ export default function OrderDetailPage() {
             </dl>
           </Card>
 
-          <Card title="Retiro en tienda">
-            <p className="text-sm text-ink/85">{order.pickup.address}</p>
-            <p className="mt-1 text-sm text-ink/70 first-letter:uppercase">{order.pickup.hours}</p>
-          </Card>
+          {isShipping ? (
+            <ShippingCard order={order} />
+          ) : (
+            <Card title="Retiro en tienda">
+              <p className="text-sm text-ink/85">{order.pickup.address}</p>
+              <p className="mt-1 text-sm text-ink/70 first-letter:uppercase">{order.pickup.hours}</p>
+            </Card>
+          )}
         </aside>
       </div>
     </>

@@ -2,7 +2,7 @@
  * Configuración central de la tienda.
  *
  * - Textos fijos de la marca (nombre, eslogan, beneficios, logos…): se cambian aquí.
- * - Anuncios, WhatsApp, dirección, horario, mapa y redes: se editan en Panel › Ajustes.
+ * - Anuncios, WhatsApp, dirección, horario, mapa, redes y envíos: se editan en Panel › Ajustes.
  *   Los valores de este archivo solo se usan mientras no haya ajustes guardados.
  *   En los componentes, léelos con useStoreInfo() (context/StoreInfoContext.jsx).
  * - Textos largos de las páginas informativas: content/paginas-informativas.json.
@@ -27,7 +27,7 @@ export const store = {
 
   /** Mensajes de la barra de anuncio superior (rotan automáticamente) */
   announcements: [
-    'Compra en línea y retira en tienda',
+    'Envíos a todo El Salvador o retiro gratis en tienda',
     'Tallas S a XL y talla única',
     'Precios desde $5',
     'Venta al detalle y por mayoreo',
@@ -38,8 +38,11 @@ export const store = {
     { icon: 'sizes', title: 'Tallas S a XL', text: 'También talla única. Encuentra tu talla.' },
     { icon: 'colors', title: 'Varios colores por modelo', text: 'Elige el tono que más te guste.' },
     { icon: 'price', title: 'Precios desde $5', text: 'Moda en tendencia a precio accesible.' },
-    { icon: 'store', title: 'Retira en tienda', text: 'Pruébate tus prendas en nuestra sucursal.' },
+    { icon: 'store', title: 'Envío o retiro en tienda', text: 'Recíbelo en todo el país o retíralo gratis en la sucursal.' },
   ],
+
+  /** Envío a domicilio (valores por defecto; se editan en Panel › Ajustes) */
+  shipping: { enabled: true, fee: 3.5, time: 'De 2 a 4 días hábiles' },
 
   priceRange: { min: 5, max: 25.5 },
   sizes: ['S', 'M', 'L', 'XL', 'Única'],

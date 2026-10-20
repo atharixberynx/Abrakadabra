@@ -1,5 +1,5 @@
 /**
- * Panel › Resumen: fila de métricas (pedidos de hoy, pendientes de retiro, ventas del mes,
+ * Panel › Resumen: fila de métricas (pedidos de hoy, pendientes de entregar, ventas del mes,
  * poco stock), pedidos por atender y productos con poco stock.
  */
 import { Link } from 'react-router-dom';
@@ -65,9 +65,9 @@ export default function DashboardPage() {
           <section aria-label="Métricas" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile label="Pedidos de hoy" value={data.ordersToday} detail="Pagados desde las 12:00 a. m." to="/admin/pedidos" />
             <StatTile
-              label="Pendientes de retiro"
-              value={data.pendingPickup.total}
-              detail={`${data.pendingPickup.toPrepare} por preparar · ${data.pendingPickup.ready} listos`}
+              label="Pendientes de entregar"
+              value={data.pending.total}
+              detail={`${data.pending.toPrepare} por preparar · ${data.pending.ready} para retiro · ${data.pending.shipped} en camino`}
               to="/admin/pedidos?estado=pendientes"
             />
             <StatTile label="Ventas del mes" value={formatPrice(data.monthSales.total)} detail={salesComparison(data.monthSales)} />
@@ -90,7 +90,9 @@ export default function DashboardPage() {
                       <Link to={`/admin/pedidos/${o.id}`} className="flex items-center justify-between gap-3 py-3 hover:bg-lavender/40 sm:px-2">
                         <div className="min-w-0">
                           <p className="font-semibold text-brand">{o.orderNumber}</p>
-                          <p className="truncate text-xs text-ink/70">{o.customerName} · {formatShortDate(o.createdAt)} · {formatPrice(o.total)}</p>
+                          <p className="truncate text-xs text-ink/70">
+                            {o.customerName} · {formatShortDate(o.createdAt)} · {formatPrice(o.total)} · {o.deliveryMethod === 'envio' ? 'Envío' : 'Retiro'}
+                          </p>
                         </div>
                         <AdminStatusBadge status={o.status} />
                       </Link>

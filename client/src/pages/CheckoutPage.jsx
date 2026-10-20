@@ -1,14 +1,15 @@
 /**
- * Checkout: resumen, datos de la clienta, retiro en tienda y pago con tarjeta.
+ * Checkout: resumen, datos de la clienta, entrega (retiro en tienda o envío) y pago con tarjeta.
  *  - Requiere sesión (ProtectedRoute). Sin cuenta, se pide iniciar sesión y se vuelve aquí.
  *  - En modo de prueba no se realiza ningún cargo real.
- *  - El total lo calcula el backend con los precios de la base de datos.
+ *  - El total lo calcula el backend con los precios de la base de datos y el costo de envío vigente.
  */
 import { useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { CreditCard, Lock, MapPin, Store } from 'lucide-react';
+import { CreditCard, Lock } from 'lucide-react';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { DeliveryOptions } from '../components/checkout/DeliveryOptions.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Portal } from '../components/ui/Portal.jsx';
@@ -18,13 +19,14 @@ import { cartPayload, useCartValidation } from '../hooks/useCartValidation.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { apiFetch } from '../lib/api.js';
 import { BRAND_LABELS, TEST_CARDS, detectBrand, formatCardNumber, formatExpiry, validateCard } from '../lib/card.js';
+import { initialShipping, validateShipping } from '../lib/delivery.js';
 import { formatPrice } from '../lib/format.js';
 import { imageUrl } from '../lib/images.js';
 import { useCartStore } from '../store/cartStore.js';
 
 function Step({ number, title, children }) {
   return (
-    <section className="rounded-card border border-lavender bg-white p-5 shadow-soft sm:p-6" aria-labelledby={`paso-${number}`}>
+    <section className="scroll-mt-40 rounded-card border border-lavender bg-white p-5 shadow-soft sm:p-6" aria-labelledby={`paso-${number}`}>
       <h2 id={`paso-${number}`} className="mb-4 flex items-center gap-3 text-xl text-brand-dark">
         <span className="grid size-8 place-items-center rounded-full bg-brand text-sm font-semibold text-white">{number}</span>
         {title}
@@ -44,6 +46,9 @@ export default function CheckoutPage() {
   const validation = useCartValidation();
   const store = useStoreInfo();
 
+  const [deliveryMethod, setDeliveryMethod] = useState('retiro');
+  const [shipping, setShipping] = useState(() => initialShipping(user));
+  const [shippingErrors, setShippingErrors] = useState({});
   const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [cardErrors, setCardErrors] = useState({});
   const [paying, setPaying] = useState(false);
@@ -56,6 +61,21 @@ export default function CheckoutPage() {
   const result = validation.result;
   const testMode = result?.paymentTestMode ?? true;
   const brand = detectBrand(card.number);
+  // El costo de envío vigente llega con la revisión del carrito (si no, el de los ajustes cargados)
+  const shippingInfo = result?.shipping ?? store.shipping;
+  const method = shippingInfo.enabled ? deliveryMethod : 'retiro';
+  const shippingFee = method === 'envio' ? shippingInfo.fee : 0;
+  const subtotal = result?.total ?? 0;
+  const total = Math.round((subtotal + shippingFee) * 100) / 100;
+
+  const updateShipping = (next) => {
+    setShipping(next);
+    // Los errores ya marcados se corrigen mientras se escribe
+    if (Object.keys(shippingErrors).length) {
+      const fresh = validateShipping(next);
+      setShippingErrors((prev) => Object.fromEntries(Object.keys(prev).filter((k) => fresh[k]).map((k) => [k, fresh[k]])));
+    }
+  };
 
   const update = (field, value) => {
     setCard((c) => ({ ...c, [field]: value }));
@@ -72,16 +92,23 @@ export default function CheckoutPage() {
     event.preventDefault();
     setPayError(null);
     const errors = validateCard(card);
+    const deliveryErrors = method === 'envio' ? validateShipping(shipping) : {};
     setCardErrors(errors);
+    setShippingErrors(deliveryErrors);
+    if (Object.keys(deliveryErrors).length) {
+      document.getElementById('paso-2')?.closest('section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     if (Object.keys(errors).length) return;
 
     setPaying(true);
     // Una clave por intento: si la petición se repite (doble clic, red), no se cobra dos veces
     idempotencyKey.current ??= crypto.randomUUID();
+    const delivery = method === 'envio' ? { method, ...shipping, expectedFee: shippingInfo.fee } : { method };
     try {
       const { order } = await apiFetch('/orders/checkout', {
         method: 'POST',
-        body: { items: cartPayload(items), card, idempotencyKey: idempotencyKey.current },
+        body: { items: cartPayload(items), delivery, card, idempotencyKey: idempotencyKey.current },
       });
       // El carrito se vacía al llegar a la confirmación: vaciarlo aquí haría que esta página
       // redirigiera al carrito (vacío) antes de llegar al pedido
@@ -90,10 +117,18 @@ export default function CheckoutPage() {
       idempotencyKey.current = null; // el próximo intento es una compra nueva
       if (err.status === 400 && err.details) {
         const fieldErrors = {};
-        for (const d of err.details) if (CARD_FIELDS[d.field]) fieldErrors[CARD_FIELDS[d.field]] = d.message;
+        const deliveryFieldErrors = {};
+        for (const d of err.details) {
+          if (CARD_FIELDS[d.field]) fieldErrors[CARD_FIELDS[d.field]] = d.message;
+          else if (d.field?.startsWith('delivery.')) deliveryFieldErrors[d.field.slice('delivery.'.length)] = d.message;
+        }
         setCardErrors(fieldErrors);
+        setShippingErrors(deliveryFieldErrors);
       }
-      setPayError({ message: err.message, stock: err.status === 409 });
+      // 409 por stock lleva al carrito; si cambió el costo de envío, la revisión del carrito trae el nuevo
+      const shippingChanged = err.status === 409 && /envío/.test(err.message);
+      if (shippingChanged) validation.revalidate();
+      setPayError({ message: err.message, stock: err.status === 409 && !shippingChanged });
     } finally {
       setPaying(false);
     }
@@ -131,18 +166,15 @@ export default function CheckoutPage() {
           </Step>
 
           <Step number={2} title="Entrega">
-            <div className="flex gap-3 rounded-xl border-2 border-brand bg-lavender/40 p-4">
-              <Store className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
-              <div className="text-sm">
-                <p className="font-semibold text-ink">Retiro en tienda · Gratis</p>
-                <p className="mt-1 text-ink/85">{store.fullAddress}</p>
-                <p className="mt-1 text-ink/80">{store.hoursText}</p>
-                <a href={store.maps.directionsUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-brand underline-offset-4 hover:underline">
-                  <MapPin className="size-4" aria-hidden="true" /> Cómo llegar
-                </a>
-              </div>
-            </div>
-            <p className="mt-3 text-xs text-ink/70">Por ahora todas las compras en línea se retiran en la sucursal. Presenta tu número de pedido y tu DUI.</p>
+            <DeliveryOptions
+              method={method}
+              onMethodChange={setDeliveryMethod}
+              shipping={shipping}
+              onShippingChange={updateShipping}
+              errors={shippingErrors}
+              shippingInfo={shippingInfo}
+              store={store}
+            />
           </Step>
 
           <Step number={3} title="Pago con tarjeta">
@@ -188,7 +220,7 @@ export default function CheckoutPage() {
               <p className="text-xs text-ink/70">Aceptamos Visa y Mastercard.</p>
 
               <Button type="submit" size="lg" className="w-full" disabled={paying || validation.blocked || validation.status === 'checking'}>
-                <Lock className="size-4" /> {paying ? 'Procesando pago…' : `Pagar ${formatPrice(result?.total ?? 0)}`}
+                <Lock className="size-4" /> {paying ? 'Procesando pago…' : `Pagar ${formatPrice(total)}`}
               </Button>
             </form>
           </Step>
@@ -209,8 +241,12 @@ export default function CheckoutPage() {
             ))}
           </ul>
           <dl className="space-y-2 border-t border-lavender pt-3 text-sm">
-            <div className="flex justify-between"><dt className="text-ink/80">Envío</dt><dd className="font-medium text-brand">Gratis</dd></div>
-            <div className="flex justify-between text-lg"><dt className="font-semibold">Total</dt><dd className="font-semibold text-brand">{formatPrice(result?.total ?? 0)}</dd></div>
+            <div className="flex justify-between"><dt className="text-ink/80">Subtotal</dt><dd>{formatPrice(subtotal)}</dd></div>
+            <div className="flex justify-between">
+              <dt className="text-ink/80">{method === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda'}</dt>
+              <dd className="font-medium text-brand">{method === 'envio' ? formatPrice(shippingFee) : 'Gratis'}</dd>
+            </div>
+            <div className="flex justify-between text-lg"><dt className="font-semibold">Total</dt><dd className="font-semibold text-brand">{formatPrice(total)}</dd></div>
           </dl>
           <Link to="/carrito" className="block text-center text-sm text-brand underline-offset-4 hover:underline">Editar carrito</Link>
         </aside>

@@ -1,6 +1,6 @@
 /**
  * Datos de la tienda que la administradora edita en Panel › Ajustes (anuncios, WhatsApp,
- * dirección, horario, mapa y redes), combinados con los valores por defecto de config/store.js.
+ * dirección, horario, mapa, redes y envíos), combinados con los valores por defecto de config/store.js.
  *
  *   const info = useStoreInfo();
  *   info.fullAddress, info.hoursText, info.whatsappUrl('Hola…'), info.maps.directionsUrl…
@@ -49,6 +49,11 @@ function buildStoreInfo(settings) {
       embedUrl: `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`,
     },
     whatsapp: { ...store.whatsapp, number: whatsappNumber },
+    shipping: {
+      enabled: s.shippingEnabled ?? store.shipping.enabled,
+      fee: s.shippingFee ?? store.shipping.fee,
+      time: s.shippingTime || store.shipping.time,
+    },
     social: socialUrls.filter((n) => n.url).map((n) => ({ ...n, handle: n.handle ?? handleFromUrl(n.url) })),
     /** Enlace de WhatsApp de la tienda con un mensaje prellenado */
     whatsappUrl: (message = '') => `https://wa.me/${whatsappNumber}${message ? `?text=${encodeURIComponent(message)}` : ''}`,

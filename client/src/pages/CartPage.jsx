@@ -3,7 +3,7 @@
  * Se revalida con el backend al abrirlo y al cambiar cantidades (precio y stock reales).
  */
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Store, Trash2 } from 'lucide-react';
+import { AlertTriangle, Store, Trash2, Truck } from 'lucide-react';
 import { useStoreInfo } from '../context/StoreInfoContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { QuantityStepper } from '../components/product/VariantPickers.jsx';
@@ -134,15 +134,22 @@ export default function CartPage() {
         <aside className="h-fit space-y-4 rounded-card border border-lavender p-5 shadow-soft lg:sticky lg:top-36">
           <h2 className="text-xl text-brand-dark">Resumen</h2>
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between"><dt className="text-ink/80">Subtotal</dt><dd>{formatPrice(subtotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-ink/80">Envío</dt><dd className="font-medium text-brand">Gratis · retiro en tienda</dd></div>
-            <div className="flex justify-between border-t border-lavender pt-3 text-lg"><dt className="font-semibold">Total</dt><dd className="font-semibold text-brand">{formatPrice(subtotal)}</dd></div>
+            <div className="flex justify-between border-b border-lavender pb-3 text-lg"><dt className="font-semibold">Subtotal</dt><dd className="font-semibold text-brand">{formatPrice(subtotal)}</dd></div>
+            <div className="flex justify-between"><dt className="text-ink/80">Envío</dt><dd className="text-ink/80">Se elige en el siguiente paso</dd></div>
           </dl>
 
-          <div className="flex gap-3 rounded-xl bg-lavender/60 p-3 text-sm">
-            <Store className="size-5 shrink-0 text-brand" aria-hidden="true" />
-            <p className="text-ink/85">Retiras tu pedido en {store.address.line2}, {store.address.city}.</p>
-          </div>
+          <ul className="space-y-2 rounded-xl bg-lavender/60 p-3 text-sm text-ink/85">
+            <li className="flex gap-3">
+              <Store className="size-5 shrink-0 text-brand" aria-hidden="true" />
+              <span><strong className="font-semibold text-ink">Retiro en tienda gratis</strong> en {store.address.line2}, {store.address.city}.</span>
+            </li>
+            {store.shipping.enabled && (
+              <li className="flex gap-3">
+                <Truck className="size-5 shrink-0 text-brand" aria-hidden="true" />
+                <span><strong className="font-semibold text-ink">Envío a todo El Salvador</strong> por {formatPrice(store.shipping.fee)} adicionales.</span>
+              </li>
+            )}
+          </ul>
 
           <Button size="lg" className="w-full" onClick={goToCheckout} disabled={checking || validation.blocked}>
             {checking ? 'Revisando existencias…' : 'Continuar al pago'}

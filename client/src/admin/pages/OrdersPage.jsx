@@ -1,5 +1,5 @@
 /**
- * Panel › Pedidos: lista con filtros por estado, fechas y búsqueda.
+ * Panel › Pedidos: lista con filtros por estado, tipo de entrega, fechas y búsqueda.
  * Los filtros viven en la URL para poder volver atrás sin perderlos.
  */
 import { useEffect, useState } from 'react';
@@ -10,14 +10,15 @@ import { useFetch } from '../../hooks/useFetch.js';
 import { usePageTitle } from '../../hooks/usePageTitle.js';
 import { formatPrice } from '../../lib/format.js';
 import { formatShortDate } from '../../lib/orders.js';
-import { AdminStatusBadge } from '../components/AdminStatusBadge.jsx';
+import { AdminStatusBadge, DeliveryBadge } from '../components/AdminStatusBadge.jsx';
 import { ErrorState, LoadingState, PageHeader } from '../components/AdminUi.jsx';
 
 const STATUS_TABS = [
   { value: '', label: 'Todos' },
-  { value: 'pendientes', label: 'Pendientes de retiro' },
+  { value: 'pendientes', label: 'Pendientes de entregar' },
   { value: 'pagado', label: 'Por preparar' },
-  { value: 'listo_para_retiro', label: 'Listos' },
+  { value: 'listo_para_retiro', label: 'Listos para retiro' },
+  { value: 'enviado', label: 'En camino' },
   { value: 'entregado', label: 'Entregados' },
   { value: 'cancelado', label: 'Cancelados' },
   { value: 'pago_rechazado', label: 'Pagos rechazados' },
@@ -32,7 +33,7 @@ export default function OrdersPage() {
   const [search, setSearch] = useState(params.get('q') ?? '');
 
   const query = new URLSearchParams();
-  for (const key of ['estado', 'desde', 'hasta', 'q', 'page']) if (params.get(key)) query.set(key, params.get(key));
+  for (const key of ['estado', 'entrega', 'desde', 'hasta', 'q', 'page']) if (params.get(key)) query.set(key, params.get(key));
   const { data, loading, error, reload } = useFetch(`/admin/orders?${query}`, { cache: false });
 
   const setFilter = (key, value) => {
@@ -55,7 +56,7 @@ export default function OrdersPage() {
   const estado = params.get('estado') ?? '';
   const items = data?.items ?? [];
   const page = data?.page ?? 1;
-  const hasFilters = ['estado', 'desde', 'hasta', 'q'].some((k) => params.get(k));
+  const hasFilters = ['estado', 'entrega', 'desde', 'hasta', 'q'].some((k) => params.get(k));
 
   return (
     <>
@@ -77,11 +78,19 @@ export default function OrdersPage() {
         ))}
       </div>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_auto_auto_auto]">
         <label className="relative">
           <span className="sr-only">Buscar pedidos</span>
           <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink/60" aria-hidden="true" />
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Número de pedido, nombre o correo…" className={`${fieldClass} w-full pl-9`} />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-ink/80">
+          Entrega
+          <select value={params.get('entrega') ?? ''} onChange={(e) => setFilter('entrega', e.target.value)} className={`${fieldClass} flex-1`}>
+            <option value="">Todas</option>
+            <option value="retiro">Retiro en tienda</option>
+            <option value="envio">Envío a domicilio</option>
+          </select>
         </label>
         <label className="flex items-center gap-2 text-sm text-ink/80">
           Desde
@@ -116,6 +125,7 @@ export default function OrdersPage() {
                   <th className="px-4 py-3 font-semibold">Pedido</th>
                   <th className="px-4 py-3 font-semibold">Fecha</th>
                   <th className="px-4 py-3 font-semibold">Clienta</th>
+                  <th className="px-4 py-3 font-semibold">Entrega</th>
                   <th className="px-4 py-3 text-right font-semibold">Prendas</th>
                   <th className="px-4 py-3 text-right font-semibold">Total</th>
                   <th className="px-4 py-3 font-semibold">Estado</th>
@@ -132,6 +142,10 @@ export default function OrdersPage() {
                     <td className="px-4 py-3">
                       <p className="text-ink">{o.customer.name}</p>
                       <p className="text-xs text-ink/70">{o.customer.email}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <DeliveryBadge method={o.deliveryMethod} short />
+                      {o.department && <p className="text-xs text-ink/70">{o.department}</p>}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{o.pieces}</td>
                     <td className="px-4 py-3 text-right font-semibold tabular-nums text-ink">{formatPrice(o.total)}</td>
@@ -150,7 +164,10 @@ export default function OrdersPage() {
                     <span className="font-semibold text-brand">{o.orderNumber}</span>
                     <AdminStatusBadge status={o.status} />
                   </div>
-                  <p className="mt-1 text-sm text-ink">{o.customer.name}</p>
+                  <p className="mt-1 flex items-center justify-between gap-2 text-sm text-ink">
+                    {o.customer.name}
+                    <span className="text-xs"><DeliveryBadge method={o.deliveryMethod} short /></span>
+                  </p>
                   <p className="text-xs text-ink/70">{formatShortDate(o.createdAt)} · {o.pieces} {o.pieces === 1 ? 'prenda' : 'prendas'} · {formatPrice(o.total)}</p>
                 </Link>
               </li>

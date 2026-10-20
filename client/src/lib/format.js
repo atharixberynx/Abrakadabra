@@ -10,6 +10,12 @@ export function isOnSale(product) {
   return product.compareAtPrice != null && product.compareAtPrice > product.price;
 }
 
+/** Teléfono local mientras se escribe: "77771234" → "7777-1234" */
+export function formatPhone(value) {
+  const digits = String(value ?? '').replace(/\D/g, '').slice(0, 8);
+  return digits.length > 4 ? `${digits.slice(0, 4)}-${digits.slice(4)}` : digits;
+}
+
 /** "50369347087" → "+503 6934-7087" (otros países: "+" y los dígitos en grupos de 3) */
 export function formatWhatsapp(value) {
   const digits = String(value ?? '').replace(/\D/g, '');
