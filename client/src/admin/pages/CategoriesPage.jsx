@@ -15,7 +15,7 @@ import { checkImageFile } from '../products/productForm.js';
 import { CloudinaryWarning, ErrorState, LoadingState, PageHeader } from '../components/AdminUi.jsx';
 
 const inputClass =
-  'h-11 w-full rounded-xl border border-brand/20 bg-white px-3 text-sm text-ink focus:border-brand focus:outline-none';
+  'h-11 w-full rounded-xl border border-brand/20 bg-white px-3 text-base text-ink focus:border-brand focus:outline-none sm:text-sm';
 
 function CategoryImage({ category, onChange, uploadsEnabled }) {
   const inputRef = useRef(null);
@@ -114,7 +114,7 @@ function CategoryName({ category, onSaved }) {
       onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
       maxLength={40}
       aria-label={`Nombre de la categoría ${category.name}`}
-      className="h-10 w-full min-w-0 rounded-lg border border-transparent px-2 font-medium text-ink hover:border-brand/20 focus:border-brand focus:outline-none"
+      className="h-10 w-full min-w-0 rounded-lg border border-transparent px-2 text-base font-medium text-ink hover:border-brand/20 focus:border-brand focus:outline-none"
     />
   );
 }
@@ -222,35 +222,45 @@ export default function CategoriesPage() {
                 setDragIndex(null);
               }}
               onDragEnd={() => setDragIndex(null)}
-              className={`flex flex-wrap items-center gap-3 rounded-card bg-white p-3 shadow-soft transition sm:flex-nowrap ${dragIndex === index ? 'opacity-40' : ''} ${category.active ? '' : 'bg-white/70'}`}
+              className={`flex flex-col gap-3 rounded-card bg-white p-3 shadow-soft transition sm:flex-row sm:items-center ${dragIndex === index ? 'opacity-40' : ''} ${category.active ? '' : 'bg-white/70'}`}
             >
-              <GripVertical className="hidden size-5 shrink-0 cursor-grab text-ink/50 sm:block" aria-hidden="true" />
-              <div className="flex flex-col">
-                <button type="button" onClick={() => move(index, index - 1)} disabled={index === 0} className="grid size-7 place-items-center rounded text-brand hover:bg-lavender disabled:opacity-30" aria-label={`Subir ${category.name}`}>
-                  <ArrowUp className="size-4" />
-                </button>
-                <button type="button" onClick={() => move(index, index + 1)} disabled={index === categories.length - 1} className="grid size-7 place-items-center rounded text-brand hover:bg-lavender disabled:opacity-30" aria-label={`Bajar ${category.name}`}>
-                  <ArrowDown className="size-4" />
+              {/* Grupo principal: orden + imagen + nombre */}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <GripVertical className="hidden size-5 shrink-0 cursor-grab text-ink/50 sm:block" aria-hidden="true" />
+                <div className="flex shrink-0 flex-col">
+                  <button type="button" onClick={() => move(index, index - 1)} disabled={index === 0} className="grid size-8 place-items-center rounded text-brand hover:bg-lavender disabled:opacity-30" aria-label={`Subir ${category.name}`}>
+                    <ArrowUp className="size-4" />
+                  </button>
+                  <button type="button" onClick={() => move(index, index + 1)} disabled={index === categories.length - 1} className="grid size-8 place-items-center rounded text-brand hover:bg-lavender disabled:opacity-30" aria-label={`Bajar ${category.name}`}>
+                    <ArrowDown className="size-4" />
+                  </button>
+                </div>
+                <div className="shrink-0">
+                  <CategoryImage category={category} onChange={refresh} uploadsEnabled={uploadsEnabled} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <CategoryName key={category.name} category={category} onSaved={refresh} />
+                  <p className="px-2 text-xs text-ink/70">
+                    {category.productCount} {category.productCount === 1 ? 'producto' : 'productos'}
+                    <span className="hidden sm:inline"> · /catalogo?categoria={category.slug}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Acciones: debajo en celular, a la derecha en pantallas grandes */}
+              <div className="flex items-center justify-between gap-3 border-t border-lavender pt-3 sm:justify-end sm:border-0 sm:pt-0">
+                <Switch checked={category.active} onChange={() => toggleActive(category)} label="Visible" showLabel size="sm" />
+                <button
+                  type="button"
+                  onClick={() => remove(category)}
+                  disabled={category.productCount > 0}
+                  className="grid size-10 place-items-center rounded-full text-danger hover:bg-danger-soft disabled:cursor-not-allowed disabled:text-ink/40 disabled:hover:bg-transparent sm:size-9"
+                  aria-label={`Eliminar ${category.name}`}
+                  title={category.productCount > 0 ? 'No se puede eliminar: tiene productos. Puedes ocultarla.' : 'Eliminar'}
+                >
+                  <Trash2 className="size-4" />
                 </button>
               </div>
-              <CategoryImage category={category} onChange={refresh} uploadsEnabled={uploadsEnabled} />
-              <div className="min-w-0 flex-1">
-                <CategoryName key={category.name} category={category} onSaved={refresh} />
-                <p className="px-2 text-xs text-ink/70">
-                  {category.productCount} {category.productCount === 1 ? 'producto' : 'productos'} · /catalogo?categoria={category.slug}
-                </p>
-              </div>
-              <Switch checked={category.active} onChange={() => toggleActive(category)} label="Visible" showLabel size="sm" />
-              <button
-                type="button"
-                onClick={() => remove(category)}
-                disabled={category.productCount > 0}
-                className="grid size-9 place-items-center rounded-full text-danger hover:bg-danger-soft disabled:cursor-not-allowed disabled:text-ink/40 disabled:hover:bg-transparent"
-                aria-label={`Eliminar ${category.name}`}
-                title={category.productCount > 0 ? 'No se puede eliminar: tiene productos. Puedes ocultarla.' : 'Eliminar'}
-              >
-                <Trash2 className="size-4" />
-              </button>
             </li>
           ))}
         </ul>
