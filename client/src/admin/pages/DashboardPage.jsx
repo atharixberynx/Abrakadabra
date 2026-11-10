@@ -62,7 +62,7 @@ export default function DashboardPage() {
         <ErrorState error={error} onRetry={reload} />
       ) : (
         <div className="space-y-6">
-          <section aria-label="Métricas" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section aria-label="Métricas" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile label="Pedidos de hoy" value={data.ordersToday} detail="Pagados desde las 12:00 a. m." to="/admin/pedidos" />
             <StatTile
               label="Pendientes de entregar"
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             />
           </section>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <Card title="Pedidos por atender" description="Los más antiguos primero.">
               {data.pendingOrders.length === 0 ? (
                 <p className="py-4 text-center text-sm text-ink/80">No hay pedidos pendientes. ✨</p>
@@ -88,13 +88,13 @@ export default function DashboardPage() {
                   {data.pendingOrders.map((o) => (
                     <li key={o.id}>
                       <Link to={`/admin/pedidos/${o.id}`} className="flex items-center justify-between gap-3 py-3 hover:bg-lavender/40 sm:px-2">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="font-semibold text-brand">{o.orderNumber}</p>
-                          <p className="truncate text-xs text-ink/70">
+                          <p className="break-words text-xs text-ink/70">
                             {o.customerName} · {formatShortDate(o.createdAt)} · {formatPrice(o.total)} · {o.deliveryMethod === 'envio' ? 'Envío' : 'Retiro'}
                           </p>
                         </div>
-                        <AdminStatusBadge status={o.status} />
+                        <span className="shrink-0"><AdminStatusBadge status={o.status} /></span>
                       </Link>
                     </li>
                   ))}
@@ -118,7 +118,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-ink">{p.name}{!p.active && ' (oculto)'}</p>
-                          <p className="text-xs text-ink/70">
+                          <p className="break-words text-xs text-ink/70">
                             {p.variants.map((v) => `${v.color} ${v.size}: ${v.stock}`).join(' · ')}
                           </p>
                         </div>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <section aria-label="Accesos rápidos" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section aria-label="Accesos rápidos" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Shortcut to="/admin/productos/nuevo" icon={Plus} title="Nuevo producto" />
             <Shortcut to="/admin/productos" icon={Shirt} title="Productos" />
             <Shortcut to="/admin/categorias" icon={Tags} title="Categorías" />

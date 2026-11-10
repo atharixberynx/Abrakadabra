@@ -16,7 +16,7 @@ import { confirmDialog, toast } from '../../store/uiStore.js';
 import { CloudinaryWarning, ErrorState, LoadingState, PageHeader } from '../components/AdminUi.jsx';
 
 const selectClass =
-  'h-11 rounded-xl border border-brand/20 bg-white px-3 text-sm text-ink focus:border-brand focus:outline-none';
+  'h-11 w-full min-w-0 rounded-xl border border-brand/20 bg-white px-3 text-sm text-ink focus:border-brand focus:outline-none';
 
 function StockBadge({ product }) {
   if (!product.inStock) return <span className="rounded-full bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger">Agotado</span>;
@@ -127,7 +127,7 @@ export default function ProductsPage() {
       />
       <CloudinaryWarning />
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto]">
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
         <label className="relative">
           <span className="sr-only">Buscar productos</span>
           <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink/60" aria-hidden="true" />
@@ -238,7 +238,7 @@ export default function ProductsPage() {
                     <p className="mt-1 text-sm font-semibold text-brand">{formatPrice(p.price)}</p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <StockBadge product={p} />
                   <Switch checked={p.active} onChange={() => toggleActive(p)} label="Visible" showLabel size="sm" />
                 </div>

@@ -261,7 +261,7 @@ function ProductEditor({ product, categories, uploadsEnabled }) {
       <CloudinaryWarning />
 
       {/* minmax(0,1fr) + min-w-0: la tabla de existencias hace scroll en su recuadro en vez de ensanchar la página */}
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-6">
           <Card id="seccion-info" title="Información" error={errors.name || errors.category || errors.price || errors.compareAtPrice ? 'Completa los datos marcados' : null}>
             <div className="space-y-4">
@@ -293,7 +293,7 @@ function ProductEditor({ product, categories, uploadsEnabled }) {
                 {errors.category && <p className="mt-1.5 text-sm text-danger">{errors.category}</p>}
                 <Link to="/admin/categorias" className="mt-1.5 inline-block text-xs text-brand underline-offset-4 hover:underline">Administrar categorías</Link>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextField label="Precio ($)" type="number" inputMode="decimal" step="0.01" min="0" value={form.price} onChange={(e) => update({ price: e.target.value })} error={errors.price} placeholder="14.50" />
                 <TextField
                   label="Precio anterior ($) · opcional"
